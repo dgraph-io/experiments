@@ -1,4 +1,4 @@
-package main
+package plist
 
 // AUTO GENERATED - DO NOT EDIT
 
