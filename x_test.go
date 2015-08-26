@@ -65,6 +65,18 @@ func BenchmarkInt32(b *testing.B) {
 	}
 }
 
+func BenchmarkFloat(b *testing.B) {
+	rand.Seed(time.Now().UnixNano())
+	var m, n float64
+	m = rand.Float64()
+	n = rand.Float64()
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		_ = m == n
+	}
+}
+
 // Around 8.67 ns/op on my laptop.
 func BenchmarkString(b *testing.B) {
 	rand.Seed(time.Now().UnixNano())
