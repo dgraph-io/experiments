@@ -1,13 +1,13 @@
 package vrpc
 
 import (
+	"crypto/tls"
 	"net"
 	"net/rpc"
 	"testing"
-
-	"github.com/valyala/gorpc"
 )
 
+/*
 func BenchmarkPingPong_valyala(b *testing.B) {
 	gorpc.RegisterType(&PostingList{})
 
@@ -32,6 +32,7 @@ func BenchmarkPingPong_valyala(b *testing.B) {
 		}
 	}
 }
+*/
 
 func getTcpPipe(b *testing.B) (net.Conn, net.Conn) {
 	ln, err := net.Listen("tcp", "127.0.0.1:12345")
@@ -52,6 +53,32 @@ func getTcpPipe(b *testing.B) (net.Conn, net.Conn) {
 	connC, err := net.Dial("tcp", addr)
 	if err != nil {
 		b.Fatalf("cannot dial %s: %s", addr, err)
+	}
+	connS := <-ch
+	return connC, connS
+}
+
+func getTlsTcpPipe(b *testing.B) (net.Conn, net.Conn) {
+	cert, err := tls.LoadX509KeyPair("./cert.pem", "./key.pem")
+	if err != nil {
+		b.Fatalf("While loading tls certs: %v", err)
+	}
+	config := tls.Config{Certificates: []tls.Certificate{cert}}
+	ln, err := tls.Listen("tcp", "127.0.0.1:12347", &config)
+
+	ch := make(chan net.Conn, 1)
+	go func() {
+		conn, err := ln.Accept()
+		if err != nil {
+			b.Fatalf("cannot accept incoming tcp conn: %s", err)
+		}
+		ch <- conn
+	}()
+
+	addr := ln.Addr().String()
+	connC, err := tls.Dial("tcp", addr, &config)
+	if err != nil {
+		b.Fatalf("cannot dial: %s: %s", addr, err)
 	}
 	connS := <-ch
 	return connC, connS
