@@ -116,6 +116,56 @@ func BenchmarkPingPong_2MB_netrpc(b *testing.B) {
 	done <- true
 }
 
+/*
+func BenchmarkPingPong_2KB_udp(b *testing.B) {
+	ready := make(chan bool)
+	done := make(chan bool)
+	addr := "127.0.0.1:12333"
+	go runUdpServer(b, addr, ready, done)
+
+	saddr, err := net.ResolveUDPAddr("udp", addr)
+	if err != nil {
+		b.Fatalf("While resolving: %v", err)
+		return
+	}
+
+	fmt.Println("Waiting for ready")
+	<-ready
+	fmt.Println("Server is now ready")
+	connC, err := net.DialUDP("udp", nil, saddr)
+	if err != nil {
+		b.Fatalf("While dialing: %v", err)
+		return
+	}
+	fmt.Println("Dial done")
+
+	c := rpc.NewClient(connC)
+	defer c.Close()
+
+	w := new(bytes.Buffer)
+	for i := 0; i < 1000; i++ {
+		binary.Write(w, binary.LittleEndian, rand.Int63())
+	}
+	req := w.Bytes()
+	fmt.Printf("Got buffer of size: %v\n", len(req))
+	b.ResetTimer()
+
+	for i := 0; i < 10; i++ {
+		fmt.Println("Sending call")
+		n, err := connC.Write(req)
+		if err != nil {
+			b.Fatalf("While writing: %v", err)
+			return
+		}
+		fmt.Printf("Wrote bytes: %v\n", n)
+	}
+	b.StopTimer()
+	connC.Write([]byte("0"))
+	fmt.Println("Sending done")
+	done <- true
+}
+*/
+
 func BenchmarkPingPong_2KB_valyala(b *testing.B) {
 	gorpc.RegisterType(&PostingList{})
 
@@ -222,6 +272,46 @@ func runServer(b *testing.B, addr string, ready, done chan bool) {
 	go s.ServeConn(conn)
 	<-done
 }
+
+/*
+func runUdpServer(b *testing.B, addr string, ready, done chan bool) {
+	saddr, err := net.ResolveUDPAddr("udp", addr)
+	if err != nil {
+		b.Fatalf("While resolving: %v", err)
+		return
+	}
+
+	conn, err := net.ListenUDP("udp", saddr)
+	if err != nil {
+		b.Fatalf("Cannot listen to socket: %s", err)
+		return
+	}
+	defer conn.Close()
+	fmt.Println("Listen UDP OK.")
+
+	ready <- true
+	fmt.Println("serving connection via udp")
+	buf := make([]byte, 2<<20)
+	go func() {
+		for {
+			fmt.Println("Waiting for UDP packets")
+			n, addr, err := conn.ReadFromUDP(buf)
+			if err != nil {
+				b.Fatalf("While reading from udp: %v", err)
+				return
+			}
+			fmt.Printf("Got n bytes: %v Addr: %v\n", n, addr)
+			if n == 1 {
+				break
+			}
+		}
+	}()
+	// go s.ServeConn(conn)
+	fmt.Println("Blocking on done")
+	<-done
+	fmt.Println("I AM DONE")
+}
+*/
 
 // Benchmark TLS over TCP connection for 2MB payload.
 var tlsAddr = "127.0.0.1:12347"
