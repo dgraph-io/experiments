@@ -41,59 +41,28 @@ func BenchmarkPingPong_2MB_valyala(b *testing.B) {
 	}
 }
 
-func BenchmarkPingPong_2KB_valyala(b *testing.B) {
-	gorpc.RegisterType(&PostingList{})
+func BenchmarkPingPong_2MB_tlsrpc(b *testing.B) {
+	ready := make(chan bool)
+	done := make(chan bool)
+	go runTlsServer(b, ready, done)
+	connC := getTlsClientConn(b, ready)
+	defer connC.Close()
 
-	s := gorpc.NewTCPServer(":12345", PingPong)
-	if err := s.Start(); err != nil {
-		b.Fatal("While starting server on port 12345")
-		return
-	}
-	defer s.Stop()
+	c := rpc.NewClient(connC)
+	defer c.Close()
 
-	req := NewRequest(kb2)
-	c := gorpc.NewTCPClient(":12345")
-	c.Start()
-	defer c.Stop()
-
+	req := NewRequest(mb2)
 	b.ResetTimer()
+
 	for i := 0; i < b.N; i++ {
-		_, err := c.Call(req)
-		if err != nil {
+		var reply PostingList
+		if err := c.Call("PostingList.PingPong", req, &reply); err != nil {
 			b.Fatalf("While running request: %v", err)
 			return
 		}
 	}
-}
-
-// Benchmark Golang net.tcp TCP connection for payloads.
-func runServer(b *testing.B, addr string, ready, done chan bool) {
-	b.Logf("Going to listen on %v", addr)
-	ln, err := net.Listen("tcp", addr)
-	if err != nil {
-		b.Fatalf("Cannot listen to socket: %s", err)
-		return
-	}
-	b.Log("Listen successful")
-
-	s := rpc.NewServer()
-	if err := s.Register(&PostingList{}); err != nil {
-		b.Fatalf("Error when registering rpc server: %v", err)
-		return
-	}
-
-	ready <- true
-	conn, err := ln.Accept()
-	if err != nil {
-		b.Fatalf("Cannot accept incoming: %v", err)
-		return
-	}
-	defer conn.Close()
-
-	go s.ServeConn(conn)
-
-	b.Log("Waiting for done")
-	<-done
+	b.StopTimer()
+	done <- true
 }
 
 func BenchmarkPingPong_2MB_netrpc(b *testing.B) {
@@ -124,14 +93,60 @@ func BenchmarkPingPong_2MB_netrpc(b *testing.B) {
 			return
 		}
 	}
+	b.StopTimer()
 	done <- true
 }
 
-// FOR SOME REASON, the below code gets stuck!
-// The same exact code works for TLS connection.
-// No idea why that's happening. Already spent too much
-// time making this work. If you have ideas, let me know.
-func _BenchmarkPingPong_2KB_netrpc(b *testing.B) {
+func BenchmarkPingPong_2KB_valyala(b *testing.B) {
+	gorpc.RegisterType(&PostingList{})
+
+	s := gorpc.NewTCPServer(":12345", PingPong)
+	if err := s.Start(); err != nil {
+		b.Fatal("While starting server on port 12345")
+		return
+	}
+	defer s.Stop()
+
+	req := NewRequest(kb2)
+	c := gorpc.NewTCPClient(":12345")
+	c.Start()
+	defer c.Stop()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := c.Call(req)
+		if err != nil {
+			b.Fatalf("While running request: %v", err)
+			return
+		}
+	}
+}
+
+func BenchmarkPingPong_2KB_tlsrpc(b *testing.B) {
+	ready := make(chan bool)
+	done := make(chan bool)
+	go runTlsServer(b, ready, done)
+	connC := getTlsClientConn(b, ready)
+	defer connC.Close()
+
+	c := rpc.NewClient(connC)
+	defer c.Close()
+
+	req := NewRequest(kb2)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		var reply PostingList
+		if err := c.Call("PostingList.PingPong", req, &reply); err != nil {
+			b.Fatalf("While running request: %v", err)
+			return
+		}
+	}
+	b.StopTimer()
+	done <- true
+}
+
+func BenchmarkPingPong_2KB_netrpc(b *testing.B) {
 	ready := make(chan bool)
 	done := make(chan bool)
 	addr := "127.0.0.1:12348"
@@ -159,7 +174,34 @@ func _BenchmarkPingPong_2KB_netrpc(b *testing.B) {
 			return
 		}
 	}
+	b.StopTimer()
 	done <- true
+}
+
+func runServer(b *testing.B, addr string, ready, done chan bool) {
+	ln, err := net.Listen("tcp", addr)
+	if err != nil {
+		b.Fatalf("Cannot listen to socket: %s", err)
+		return
+	}
+	defer ln.Close()
+
+	s := rpc.NewServer()
+	if err := s.Register(&PostingList{}); err != nil {
+		b.Fatalf("Error when registering rpc server: %v", err)
+		return
+	}
+
+	ready <- true
+	conn, err := ln.Accept()
+	if err != nil {
+		b.Fatalf("Cannot accept incoming: %v", err)
+		return
+	}
+	defer conn.Close()
+
+	go s.ServeConn(conn)
+	<-done
 }
 
 // Benchmark TLS over TCP connection for 2MB payload.
@@ -177,13 +219,14 @@ func runTlsServer(b *testing.B, ready, done chan bool) {
 		b.Fatalf("When listening: %v", err)
 		return
 	}
+	defer ln.Close()
+
 	s := rpc.NewServer()
 	if err := s.Register(&PostingList{}); err != nil {
 		b.Fatalf("Error when registering rpc server: %v", err)
 		return
 	}
 
-	b.Log("Ready to accept single new connection")
 	ready <- true
 
 	conn, err := ln.Accept()
@@ -192,7 +235,6 @@ func runTlsServer(b *testing.B, ready, done chan bool) {
 		return
 	}
 	defer conn.Close()
-	b.Log("Accepted a connection")
 	go s.ServeConn(conn)
 	<-done
 }
@@ -211,61 +253,10 @@ func getTlsClientConn(b *testing.B, ready chan bool) *tls.Conn {
 	if err != nil {
 		b.Fatalf("While dialing via net: %v", err)
 	}
-	b.Log("Got connection via net.Dial")
 
 	connC := tls.Client(insConn, &cconf)
-	b.Log("Converted to tls")
 	if err := connC.Handshake(); err != nil {
 		b.Fatalf("While handshaking: %v", err)
 	}
-	b.Log("Shook hands")
 	return connC
-}
-
-func BenchmarkPingPong_2MB_tlsrpc(b *testing.B) {
-	ready := make(chan bool)
-	done := make(chan bool)
-	go runTlsServer(b, ready, done)
-	connC := getTlsClientConn(b, ready)
-	defer connC.Close()
-
-	c := rpc.NewClient(connC)
-	defer c.Close()
-
-	req := NewRequest(mb2)
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		var reply PostingList
-		if err := c.Call("PostingList.PingPong", req, &reply); err != nil {
-			b.Fatalf("While running request: %v", err)
-			return
-		}
-	}
-	b.StopTimer()
-	done <- true
-}
-
-func BenchmarkPingPong_2KB_tlsrpc(b *testing.B) {
-	ready := make(chan bool)
-	done := make(chan bool)
-	go runTlsServer(b, ready, done)
-	connC := getTlsClientConn(b, ready)
-	defer connC.Close()
-
-	c := rpc.NewClient(connC)
-	defer c.Close()
-
-	req := NewRequest(kb2)
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		var reply PostingList
-		if err := c.Call("PostingList.PingPong", req, &reply); err != nil {
-			b.Fatalf("While running request: %v", err)
-			return
-		}
-	}
-	b.StopTimer()
-	done <- true
 }
