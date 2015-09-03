@@ -21,11 +21,9 @@ type PostingList struct {
 
 var log = logrus.WithField("pkg", "vrpc")
 
-func NewRequest() *PostingList {
+func NewRequest(sz int) *PostingList {
 	req := new(PostingList)
-	sz := 250000
 	req.Uids = make([]uint64, sz)
-	// Generate a 2MB request.
 	for i := 0; i < sz; i++ {
 		req.Uids[i] = uint64(rand.Int63())
 	}
