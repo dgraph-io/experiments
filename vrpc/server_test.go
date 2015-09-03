@@ -1,3 +1,22 @@
+// vrpc package benchmarks the various RPC libraries.
+// 1. A custom tcp library by valyala (custom TCP)
+// 2. net/rpc standard library (TCP)
+// 3. crypto/tls over net/rpc standard libraries. (TLS over TCP)
+//
+// The results as of today, on my desktop are these:
+// BenchmarkPingPong_2MB_valyala	       2	 554987424 ns/op
+// BenchmarkPingPong_2MB_tlsrpc	      20	  77509099 ns/op
+// BenchmarkPingPong_2MB_netrpc	     100	  17450330 ns/op
+// BenchmarkPingPong_2KB_valyala	   10000	    167166 ns/op
+// BenchmarkPingPong_2KB_tlsrpc	   10000	    176208 ns/op
+// BenchmarkPingPong_2KB_netrpc	   10000	    102846 ns/op
+//
+// So, valyala is consistently slow.
+// TLS-TCP vs only TCP ranges from 1.7x to 4.5x performance
+// penalty, which is significant.
+// For now, it probably makes sense to stick to just TCP,
+// and see if we need to worry about encrypting inter-node connections later.
+
 package vrpc
 
 import (
