@@ -50,6 +50,18 @@ func findSmallerOrEqualsIter(ar []int, maxv int) int {
 	return sofar
 }
 
+func findSmallerOrEqualsLinear(ar []int, maxv int) int {
+	found := -1
+	for i := 0; i < len(ar); i++ {
+		if ar[i] <= maxv {
+			found = i
+		} else {
+			break
+		}
+	}
+	return found
+}
+
 func main() {
 	flag.Parse()
 	ar := []int{2, 3, 5}

@@ -36,3 +36,19 @@ func benchIter(b *testing.B, sz int) {
 func BenchmarkIter_100(b *testing.B)   { benchIter(b, 100) }
 func BenchmarkIter_1000(b *testing.B)  { benchIter(b, 1000) }
 func BenchmarkIter_10000(b *testing.B) { benchIter(b, 10000) }
+
+func benchLinear(b *testing.B, sz int) {
+	ar := make([]int, sz)
+	for i := 0; i < len(ar); i++ {
+		ar[i] = 3 * i
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		val := rand.Intn(3 * sz)
+		findSmallerOrEqualsLinear(ar, val)
+	}
+}
+
+func BenchmarkLinear_100(b *testing.B)   { benchLinear(b, 100) }
+func BenchmarkLinear_1000(b *testing.B)  { benchLinear(b, 1000) }
+func BenchmarkLinear_10000(b *testing.B) { benchLinear(b, 10000) }
