@@ -311,37 +311,6 @@ func main() {
 	} else {
 		go cur_node.run()
 	}
-	/*
-			// start a small cluster
-			nodes[1] = newNode(1, "", []raft.Peer{{ID: 1}})
-			//nodes[1].raft.Campaign(nodes[1].ctx)
-			go nodes[1].run()
-
-			nodes[2] = newNode(2, "", []raft.Peer{})
-			go nodes[2].run()
-			nodes[1].raft.ProposeConfChange(nodes[1].ctx, raftpb.ConfChange{
-				ID:      2,
-				Type:    raftpb.ConfChangeAddNode,
-				NodeID:  2,
-				Context: []byte(""),
-			})
-
-			for nodes[1].raft.Status().Lead != 1 {
-				time.Sleep(100 * time.Millisecond)
-			}
-
-			nodes[3] = newNode(3, "", []raft.Peer{})
-			go nodes[3].run()
-			nodes[2].raft.ProposeConfChange(nodes[2].ctx, raftpb.ConfChange{
-				ID:      3,
-				Type:    raftpb.ConfChangeAddNode,
-				NodeID:  3,
-				Context: []byte(""),
-			})
-
-		// Wait for leader, is there a better way to do this
-	*/
-	time.Sleep(10000 * time.Millisecond)
 
 	for cur_node.id == 1 && cur_node.raft.Status().Lead != 1 {
 		time.Sleep(100 * time.Millisecond)
@@ -354,13 +323,6 @@ func main() {
 	for cur_node.raft.Status().Lead != 1 {
 		time.Sleep(100 * time.Millisecond)
 	}
-	//cur_node.raft.Propose(cur_node.ctx, []byte("mykey3:myvalue3"))
-
-	// Wait for proposed entry to be commited in cluster.
-	// Apperently when should add an uniq id to the message and wait until it is
-	// commited in the node.
-	fmt.Printf("** Sleeping to visualize heartbeat between nodes **\n")
-	time.Sleep(2000 * time.Millisecond)
 
 	count := 0
 	for count != 3 {
@@ -370,8 +332,8 @@ func main() {
 			fmt.Printf("%v = %v\n", k, v)
 			count += 1
 		}
-		time.Sleep(1000 * time.Millisecond)
 		fmt.Printf("*************\n")
+		time.Sleep(1000 * time.Millisecond)
 	}
 
 	time.Sleep(1000 * time.Millisecond)
