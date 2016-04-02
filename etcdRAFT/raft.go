@@ -23,7 +23,6 @@ import (
 var (
 	hb    = 1
 	pools = make(map[uint64]*conn.Pool)
-	addrs = make(map[uint64]string)
 	glog  = x.Log("RAFT")
 )
 
@@ -52,6 +51,15 @@ type helloRPC struct {
 	Addr string
 }
 
+type peerList struct {
+	List []*peerInfo
+}
+
+type peerInfo struct {
+	Id   uint64
+	Addr string
+}
+
 func (w *Worker) Hello(query *conn.Query, reply *conn.Reply) error {
 	buf := bytes.NewBuffer(query.Data)
 	dec := gob.NewDecoder(buf)
@@ -61,7 +69,9 @@ func (w *Worker) Hello(query *conn.Query, reply *conn.Reply) error {
 		glog.Fatal("decode:", err)
 	}
 
-	addrs[v.Id] = v.Addr
+	if _, ok := pools[v.Id]; !ok {
+		go connectWith(v.Addr)
+	}
 	reply.Data = []byte(strconv.Itoa(int(cur_node.id)))
 
 	fmt.Println("In Hello")
@@ -188,8 +198,8 @@ func (n *node) send(messages []raftpb.Message) {
 func sendOverNetwork(ctx context.Context, message raftpb.Message) {
 	pool, ok := pools[message.To]
 	if !ok {
-		connectWith(addrs[message.To])
-		pool = pools[message.To]
+		glog.WithField("From", cur_node.id).WithField("To", message.To).
+			Fatal("Error in making connetions")
 	}
 	addr := pool.Addr
 	fmt.Println(addr)
@@ -266,6 +276,7 @@ func connectWith(addr string) uint64 {
 		Info("Got reply from server")
 
 	pools[uint64(i)] = pool
+	pList.List = append(pList.List, &peerInfo{Id: uint64(i), Addr: pool.Addr})
 	return uint64(i)
 }
 
@@ -283,6 +294,61 @@ func proposeJoin(id uint64) {
 		Info("Got reply from server")
 }
 
+func (w *Worker) GetPeers(query *conn.Query, reply *conn.Reply) error {
+	//gob.Register(pList)
+	var network bytes.Buffer
+	enc := gob.NewEncoder(&network)
+	err := enc.Encode(pList)
+	if err != nil {
+		glog.Fatalf("encode:", err)
+	}
+
+	reply.Data = network.Bytes()
+	return nil
+}
+
+func getPeerListFrom(id uint64) {
+	pool := pools[id]
+	addr := pool.Addr
+	query := new(conn.Query)
+	reply := new(conn.Reply)
+	fmt.Println("Got Peer List")
+	if err := pool.Call("Worker.GetPeers", query, reply); err != nil {
+		glog.WithField("call", "Worker.GetPeers").Fatal(err)
+	}
+	fmt.Println("Got Peer List")
+	glog.WithField("reply_len", len(reply.Data)).WithField("addr", addr).
+		Info("Got peerList from server")
+
+	buf := bytes.NewBuffer(reply.Data)
+	dec := gob.NewDecoder(buf)
+	var v peerList
+	//gob.Register(pList)
+	err := dec.Decode(&v)
+	if err != nil {
+		glog.Fatal("decode:", err)
+	}
+	fmt.Println("Got Peer List")
+	updatePeerList(v)
+}
+
+func updatePeerList(pl peerList) {
+	//TODO
+	for _, v := range pl.List {
+		if _, ok := pools[v.Id]; !ok {
+			pList.List = append(pList.List, v)
+		}
+	}
+}
+
+func connectWithPeers() {
+	for _, v := range pList.List {
+		if _, ok := pools[v.Id]; !ok {
+			go connectWith(v.Addr)
+		}
+	}
+}
+
 var (
 	nodes      = make(map[int]*node)
 	w          = new(Worker)
@@ -292,6 +358,7 @@ var (
 		"raft instance id")
 	cluster  = flag.String("clusterIP", "", "IP of a node in cluster")
 	cur_node *node
+	pList    = new(peerList)
 )
 
 func main() {
@@ -304,9 +371,13 @@ func main() {
 		glog.Fatal(err)
 	}
 
+	pList.List = append(pList.List, &peerInfo{Id: *instanceIdx, Addr: *workerPort})
+
 	if *cluster != "" {
 		i := connectWith(*cluster)
 		go cur_node.run()
+		getPeerListFrom(i)
+		connectWithPeers()
 		proposeJoin(i)
 	} else {
 		go cur_node.run()
@@ -325,7 +396,7 @@ func main() {
 	}
 
 	count := 0
-	for count != 3 {
+	for count != 55 {
 		count = 0
 		fmt.Printf("** Node %v **\n", cur_node.id)
 		for k, v := range cur_node.pstore {
@@ -337,5 +408,4 @@ func main() {
 	}
 
 	time.Sleep(1000 * time.Millisecond)
-
 }
