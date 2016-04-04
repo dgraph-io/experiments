@@ -24,6 +24,7 @@ var (
 	hb    = 1
 	pools = make(map[uint64]*conn.Pool)
 	glog  = x.Log("RAFT")
+	peers = make(map[uint64]string)
 )
 
 type node struct {
@@ -47,15 +48,6 @@ type raftRPC struct {
 }
 
 type helloRPC struct {
-	Id   uint64
-	Addr string
-}
-
-type peerList struct {
-	List []*peerInfo
-}
-
-type peerInfo struct {
 	Id   uint64
 	Addr string
 }
@@ -276,7 +268,7 @@ func connectWith(addr string) uint64 {
 		Info("Got reply from server")
 
 	pools[uint64(i)] = pool
-	pList.List = append(pList.List, &peerInfo{Id: uint64(i), Addr: pool.Addr})
+	peers[uint64(i)] = pool.Addr
 	return uint64(i)
 }
 
@@ -298,7 +290,7 @@ func (w *Worker) GetPeers(query *conn.Query, reply *conn.Reply) error {
 	//gob.Register(pList)
 	var network bytes.Buffer
 	enc := gob.NewEncoder(&network)
-	err := enc.Encode(pList)
+	err := enc.Encode(peers)
 	if err != nil {
 		glog.Fatalf("encode:", err)
 	}
@@ -322,7 +314,7 @@ func getPeerListFrom(id uint64) {
 
 	buf := bytes.NewBuffer(reply.Data)
 	dec := gob.NewDecoder(buf)
-	var v peerList
+	var v = make(map[uint64]string)
 	//gob.Register(pList)
 	err := dec.Decode(&v)
 	if err != nil {
@@ -332,19 +324,18 @@ func getPeerListFrom(id uint64) {
 	updatePeerList(v)
 }
 
-func updatePeerList(pl peerList) {
-	//TODO
-	for _, v := range pl.List {
-		if _, ok := pools[v.Id]; !ok {
-			pList.List = append(pList.List, v)
+func updatePeerList(pl map[uint64]string) {
+	for k, v := range pl {
+		if _, ok := pools[k]; !ok {
+			peers[k] = v
 		}
 	}
 }
 
 func connectWithPeers() {
-	for _, v := range pList.List {
-		if _, ok := pools[v.Id]; !ok {
-			go connectWith(v.Addr)
+	for k, v := range peers {
+		if _, ok := pools[k]; !ok {
+			go connectWith(v)
 		}
 	}
 }
@@ -358,7 +349,6 @@ var (
 		"raft instance id")
 	cluster  = flag.String("clusterIP", "", "IP of a node in cluster")
 	cur_node *node
-	pList    = new(peerList)
 )
 
 func main() {
@@ -371,7 +361,7 @@ func main() {
 		glog.Fatal(err)
 	}
 
-	pList.List = append(pList.List, &peerInfo{Id: *instanceIdx, Addr: *workerPort})
+	peers[*instanceIdx] = *workerPort
 
 	if *cluster != "" {
 		i := connectWith(*cluster)
@@ -391,9 +381,11 @@ func main() {
 	nodeID := strconv.Itoa(int(cur_node.id))
 	cur_node.raft.Propose(cur_node.ctx, []byte("mykey"+nodeID+":myvalue"+nodeID))
 
-	for cur_node.raft.Status().Lead != 1 {
-		time.Sleep(100 * time.Millisecond)
-	}
+	/*
+		for cur_node.raft.Status().Lead != 1 {
+			time.Sleep(100 * time.Millisecond)
+		}
+	*/
 
 	count := 0
 	for count != 55 {
