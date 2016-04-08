@@ -21,10 +21,11 @@ import (
 )
 
 var (
-	hb    = 1
-	pools = make(map[uint64]*conn.Pool)
-	glog  = x.Log("RAFT")
-	peers = make(map[uint64]string)
+	hb               = 1
+	pools            = make(map[uint64]*conn.Pool)
+	glog             = x.Log("RAFT")
+	peers            = make(map[uint64]string)
+	confCount uint64 = 0
 )
 
 type node struct {
@@ -73,8 +74,9 @@ func (w *Worker) Hello(query *conn.Query, reply *conn.Reply) error {
 func (w *Worker) JoinCluster(query *conn.Query, reply *conn.Reply) error {
 	i, _ := strconv.Atoi(string(query.Data))
 	id := uint64(i)
+	confCount++
 	cur_node.raft.ProposeConfChange(cur_node.ctx, raftpb.ConfChange{
-		ID:      id,
+		ID:      confCount,
 		Type:    raftpb.ConfChangeAddNode,
 		NodeID:  id,
 		Context: []byte(""),
@@ -183,7 +185,7 @@ func (n *node) send(messages []raftpb.Message) {
 
 		// send message to other node
 		//nodes[int(m.To)].receive(n.ctx, m)
-		sendOverNetwork(n.ctx, m)
+		go sendOverNetwork(n.ctx, m)
 	}
 }
 
@@ -208,11 +210,24 @@ func sendOverNetwork(ctx context.Context, message raftpb.Message) {
 	query.Data = network.Bytes()
 	reply := new(conn.Reply)
 	if err := pool.Call("Worker.ReceiveOverNetwork", query, reply); err != nil {
-		glog.WithField("call", "Worker.ReceiveOverNetwork").Fatal(err)
+		glog.WithField("call", "Worker.ReceiveOverNetwork").Error(err)
+		//cur_node.raft.ReportUnreachable(message.To) // Report to raft cluster that the node is unreachable
+		RemoveNodeFromCluster(message.To)
+		return
 	}
 	glog.WithField("reply_len", len(reply.Data)).WithField("addr", addr).
 		Info("Got reply from server")
 
+}
+
+func RemoveNodeFromCluster(id uint64) {
+	confCount++
+	cur_node.raft.ProposeConfChange(cur_node.ctx, raftpb.ConfChange{
+		ID:      confCount,
+		Type:    raftpb.ConfChangeRemoveNode,
+		NodeID:  id,
+		Context: []byte(""),
+	})
 }
 
 func (w *Worker) ReceiveOverNetwork(query *conn.Query, reply *conn.Reply) error {
@@ -279,13 +294,23 @@ func proposeJoin(id uint64) {
 	query := new(conn.Query)
 	query.Data = []byte(strconv.Itoa(int(cur_node.id)))
 	reply := new(conn.Reply)
-	if err := pool.Call("Worker.JoinCluster", query, reply); err != nil {
-		glog.WithField("call", "Worker.JoinCluster").Fatal(err)
-	}
-	glog.WithField("reply_len", len(reply.Data)).WithField("addr", addr).
-		Info("Got reply from server")
-}
 
+	co := 0
+	for cur_node.raft.Status().Lead != id && co < 3330 {
+		glog.Info("Trying to connect with master")
+		if err := pool.Call("Worker.JoinCluster", query, reply); err != nil {
+			glog.WithField("call", "Worker.JoinCluster").Fatal(err)
+		}
+		glog.WithField("reply_len", len(reply.Data)).WithField("addr", addr).
+			Info("Got reply from server")
+		time.Sleep(1000 * time.Millisecond) // sleep for a second and rety joining the cluster
+		co++
+	}
+
+	if cur_node.raft.Status().Lead != id {
+		glog.Fatalf("Unable to joing the cluster")
+	}
+}
 func (w *Worker) GetPeers(query *conn.Query, reply *conn.Reply) error {
 	//gob.Register(pList)
 	var network bytes.Buffer
@@ -340,6 +365,48 @@ func connectWithPeers() {
 	}
 }
 
+func (w *Worker) GetMasterIP(query *conn.Query, reply *conn.Reply) error {
+	buf := bytes.NewBuffer(query.Data)
+	dec := gob.NewDecoder(buf)
+	var v helloRPC
+	err := dec.Decode(&v)
+	if err != nil {
+		glog.Fatal("decode:", err)
+	}
+
+	if _, ok := pools[v.Id]; !ok {
+		go connectWith(v.Addr)
+	}
+	reply.Data = []byte(peers[cur_node.raft.Status().Lead])
+	fmt.Println("In Hello")
+	return nil
+}
+
+func getMasterIp(ip string) string {
+	if len(ip) == 0 {
+		return ""
+	}
+	pool := conn.NewPool(ip, 5)
+	query := new(conn.Query)
+	var network bytes.Buffer
+	enc := gob.NewEncoder(&network)
+	err := enc.Encode(helloRPC{cur_node.id, *workerPort})
+	if err != nil {
+		glog.Fatalf("encode:", err)
+	}
+	query.Data = network.Bytes()
+
+	reply := new(conn.Reply)
+	if err := pool.Call("Worker.GetMasterIP", query, reply); err != nil {
+		glog.WithField("call", "Worker.GetMasterIP").Fatal(err)
+	}
+	masterIP := string(reply.Data)
+	glog.WithField("reply", masterIP).WithField("addr", ip).
+		Info("Got reply from server")
+
+	return masterIP
+}
+
 var (
 	nodes      = make(map[int]*node)
 	w          = new(Worker)
@@ -364,18 +431,22 @@ func main() {
 	peers[*instanceIdx] = *workerPort
 
 	if *cluster != "" {
-		i := connectWith(*cluster)
+		master_ip := getMasterIp(*cluster)
+		master_id := connectWith(master_ip)
 		go cur_node.run()
-		getPeerListFrom(i)
+		getPeerListFrom(master_id)
 		connectWithPeers()
-		proposeJoin(i)
+		proposeJoin(master_id)
 	} else {
 		go cur_node.run()
+		cur_node.raft.Campaign(cur_node.ctx)
 	}
 
-	for cur_node.id == 1 && cur_node.raft.Status().Lead != 1 {
-		time.Sleep(100 * time.Millisecond)
-	}
+	/*
+		for cur_node.id == 1 && cur_node.raft.Status().Lead != 1 {
+			time.Sleep(100 * time.Millisecond)
+		}
+	*/
 
 	fmt.Println("proposal by node ", cur_node.id)
 	nodeID := strconv.Itoa(int(cur_node.id))
@@ -396,8 +467,6 @@ func main() {
 			count += 1
 		}
 		fmt.Printf("*************\n")
-		time.Sleep(1000 * time.Millisecond)
+		time.Sleep(5 * time.Second)
 	}
-
-	time.Sleep(1000 * time.Millisecond)
 }
