@@ -21,10 +21,11 @@ import (
 )
 
 var (
-	hb    = 1
-	pools = make(map[uint64]*conn.Pool)
-	addrs = make(map[uint64]string)
-	glog  = x.Log("RAFT")
+	hb               = 1
+	pools            = make(map[uint64]*conn.Pool)
+	glog             = x.Log("RAFT")
+	peers            = make(map[uint64]string)
+	confCount uint64 = 0
 )
 
 type node struct {
@@ -52,6 +53,12 @@ type helloRPC struct {
 	Addr string
 }
 
+type keyvalRequest struct {
+	Op  string
+	Key []byte
+	Val []byte
+}
+
 func (w *Worker) Hello(query *conn.Query, reply *conn.Reply) error {
 	buf := bytes.NewBuffer(query.Data)
 	dec := gob.NewDecoder(buf)
@@ -61,7 +68,9 @@ func (w *Worker) Hello(query *conn.Query, reply *conn.Reply) error {
 		glog.Fatal("decode:", err)
 	}
 
-	addrs[v.Id] = v.Addr
+	if _, ok := pools[v.Id]; !ok {
+		go connectWith(v.Addr)
+	}
 	reply.Data = []byte(strconv.Itoa(int(cur_node.id)))
 
 	fmt.Println("In Hello")
@@ -71,8 +80,9 @@ func (w *Worker) Hello(query *conn.Query, reply *conn.Reply) error {
 func (w *Worker) JoinCluster(query *conn.Query, reply *conn.Reply) error {
 	i, _ := strconv.Atoi(string(query.Data))
 	id := uint64(i)
+	confCount++
 	cur_node.raft.ProposeConfChange(cur_node.ctx, raftpb.ConfChange{
-		ID:      id,
+		ID:      confCount,
 		Type:    raftpb.ConfChangeAddNode,
 		NodeID:  id,
 		Context: []byte(""),
@@ -181,15 +191,16 @@ func (n *node) send(messages []raftpb.Message) {
 
 		// send message to other node
 		//nodes[int(m.To)].receive(n.ctx, m)
-		sendOverNetwork(n.ctx, m)
+		go sendOverNetwork(n.ctx, m)
 	}
 }
 
 func sendOverNetwork(ctx context.Context, message raftpb.Message) {
 	pool, ok := pools[message.To]
 	if !ok {
-		connectWith(addrs[message.To])
-		pool = pools[message.To]
+		glog.WithField("From", cur_node.id).WithField("To", message.To).
+			Error("Error in making connetions")
+		return
 	}
 	addr := pool.Addr
 	fmt.Println(addr)
@@ -206,11 +217,51 @@ func sendOverNetwork(ctx context.Context, message raftpb.Message) {
 	query.Data = network.Bytes()
 	reply := new(conn.Reply)
 	if err := pool.Call("Worker.ReceiveOverNetwork", query, reply); err != nil {
-		glog.WithField("call", "Worker.ReceiveOverNetwork").Fatal(err)
+		glog.WithField("call", "Worker.ReceiveOverNetwork").Error(err)
+		//cur_node.raft.ReportUnreachable(message.To) // Report to raft cluster that the node is unreachable
+		RemoveNodeFromCluster(message.To)
+		return
 	}
 	glog.WithField("reply_len", len(reply.Data)).WithField("addr", addr).
 		Info("Got reply from server")
 
+}
+
+func RemoveNodeFromCluster(id uint64) {
+	confCount++
+	cur_node.raft.ProposeConfChange(cur_node.ctx, raftpb.ConfChange{
+		ID:      confCount,
+		Type:    raftpb.ConfChangeRemoveNode,
+		NodeID:  id,
+		Context: []byte(""),
+	})
+	delete(peers, id)
+	delete(pools, id)
+	requestOtherNodesToRemove(id)
+}
+
+func requestOtherNodesToRemove(id uint64) {
+	for idRem, _ := range peers {
+		go removeFromPeerList(strconv.Itoa(int(id)), idRem)
+	}
+}
+
+func removeFromPeerList(id string, idRem uint64) {
+	pool := pools[idRem]
+	query := new(conn.Query)
+	query.Data = []byte(id)
+	reply := new(conn.Reply)
+	if err := pool.Call("Worker.RemovePeer", query, reply); err != nil {
+		glog.WithField("call", "Worker.RemovePeer").Fatal(err)
+	}
+}
+
+func (w *Worker) RemovePeer(query *conn.Query, reply *conn.Reply) error {
+	id, _ := strconv.Atoi(string(query.Data))
+	id1 := uint64(id)
+	delete(peers, id1)
+	delete(pools, id1)
+	return nil
 }
 
 func (w *Worker) ReceiveOverNetwork(query *conn.Query, reply *conn.Reply) error {
@@ -234,8 +285,19 @@ func (n *node) processSnapshot(snapshot raftpb.Snapshot) {
 func (n *node) process(entry raftpb.Entry) {
 	log.Printf("node %v: processing entry: %v\n", n.id, entry)
 	if entry.Type == raftpb.EntryNormal && entry.Data != nil {
-		parts := bytes.SplitN(entry.Data, []byte(":"), 2)
-		n.pstore[string(parts[0])] = string(parts[1])
+		buf := bytes.NewBuffer(entry.Data)
+		dec := gob.NewDecoder(buf)
+		var v keyvalRequest
+		err := dec.Decode(&v)
+		if err != nil {
+			glog.Fatal("decode keyvalRequest:", err)
+		}
+
+		if v.Op == "Set" {
+			n.pstore[string(v.Key)] = string(v.Val)
+		} else if v.Op == "Del" {
+			delete(n.pstore, string(v.Key))
+		}
 	}
 }
 
@@ -266,6 +328,7 @@ func connectWith(addr string) uint64 {
 		Info("Got reply from server")
 
 	pools[uint64(i)] = pool
+	peers[uint64(i)] = pool.Addr
 	return uint64(i)
 }
 
@@ -276,11 +339,154 @@ func proposeJoin(id uint64) {
 	query := new(conn.Query)
 	query.Data = []byte(strconv.Itoa(int(cur_node.id)))
 	reply := new(conn.Reply)
-	if err := pool.Call("Worker.JoinCluster", query, reply); err != nil {
-		glog.WithField("call", "Worker.JoinCluster").Fatal(err)
+
+	co := 0
+	for cur_node.raft.Status().Lead != id && co < 3330 {
+		glog.Info("Trying to connect with master")
+		if err := pool.Call("Worker.JoinCluster", query, reply); err != nil {
+			glog.WithField("call", "Worker.JoinCluster").Fatal(err)
+		}
+		glog.WithField("reply_len", len(reply.Data)).WithField("addr", addr).
+			Info("Got reply from server")
+		time.Sleep(1000 * time.Millisecond) // sleep for a second and rety joining the cluster
+		co++
 	}
+
+	if cur_node.raft.Status().Lead != id {
+		glog.Fatalf("Unable to joing the cluster")
+	}
+}
+func (w *Worker) GetPeers(query *conn.Query, reply *conn.Reply) error {
+	//gob.Register(pList)
+	var network bytes.Buffer
+	enc := gob.NewEncoder(&network)
+	err := enc.Encode(peers)
+	if err != nil {
+		glog.Fatalf("encode:", err)
+	}
+
+	reply.Data = network.Bytes()
+	return nil
+}
+
+func getPeerListFrom(id uint64) {
+	pool := pools[id]
+	addr := pool.Addr
+	query := new(conn.Query)
+	reply := new(conn.Reply)
+	fmt.Println("Got Peer List")
+	if err := pool.Call("Worker.GetPeers", query, reply); err != nil {
+		glog.WithField("call", "Worker.GetPeers").Fatal(err)
+	}
+	fmt.Println("Got Peer List")
 	glog.WithField("reply_len", len(reply.Data)).WithField("addr", addr).
+		Info("Got peerList from server")
+
+	buf := bytes.NewBuffer(reply.Data)
+	dec := gob.NewDecoder(buf)
+	var v = make(map[uint64]string)
+	//gob.Register(pList)
+	err := dec.Decode(&v)
+	if err != nil {
+		glog.Fatal("decode:", err)
+	}
+	fmt.Println("Got Peer List")
+	updatePeerList(v)
+}
+
+func checkConnection(id uint64) error {
+	pool := pools[id]
+	query := new(conn.Query)
+	reply := new(conn.Reply)
+	if err := pool.Call("Worker.Ping", query, reply); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (w *Worker) Ping(query *conn.Query, reply *conn.Reply) error {
+	reply.Data = []byte("reachable")
+	return nil
+}
+
+func checkPeerList() {
+	for k, _ := range peers {
+		err := checkConnection(k)
+		if err != nil {
+			delete(peers, k)
+			delete(pools, k)
+		}
+	}
+	fmt.Println("####################")
+	for k, _ := range pools {
+		fmt.Println(k)
+	}
+	fmt.Println("####################")
+}
+
+func trackPeerList() {
+	for {
+		time.Sleep(10 * time.Second)
+		go checkPeerList()
+	}
+}
+
+func updatePeerList(pl map[uint64]string) {
+	for k, v := range pl {
+		if _, ok := pools[k]; !ok {
+			peers[k] = v
+		}
+	}
+}
+
+func connectWithPeers() {
+	for k, v := range peers {
+		if _, ok := pools[k]; !ok {
+			go connectWith(v)
+		}
+	}
+}
+
+func (w *Worker) GetMasterIP(query *conn.Query, reply *conn.Reply) error {
+	buf := bytes.NewBuffer(query.Data)
+	dec := gob.NewDecoder(buf)
+	var v helloRPC
+	err := dec.Decode(&v)
+	if err != nil {
+		glog.Fatal("decode:", err)
+	}
+
+	if _, ok := pools[v.Id]; !ok {
+		go connectWith(v.Addr)
+	}
+	reply.Data = []byte(peers[cur_node.raft.Status().Lead])
+	fmt.Println("In Hello")
+	return nil
+}
+
+func getMasterIp(ip string) string {
+	if len(ip) == 0 {
+		return ""
+	}
+	pool := conn.NewPool(ip, 5)
+	query := new(conn.Query)
+	var network bytes.Buffer
+	enc := gob.NewEncoder(&network)
+	err := enc.Encode(helloRPC{cur_node.id, *workerPort})
+	if err != nil {
+		glog.Fatalf("encode:", err)
+	}
+	query.Data = network.Bytes()
+
+	reply := new(conn.Reply)
+	if err := pool.Call("Worker.GetMasterIP", query, reply); err != nil {
+		glog.WithField("call", "Worker.GetMasterIP").Fatal(err)
+	}
+	masterIP := string(reply.Data)
+	glog.WithField("reply", masterIP).WithField("addr", ip).
 		Info("Got reply from server")
+
+	return masterIP
 }
 
 var (
@@ -304,28 +510,54 @@ func main() {
 		glog.Fatal(err)
 	}
 
+	peers[*instanceIdx] = *workerPort
+
 	if *cluster != "" {
-		i := connectWith(*cluster)
+		master_ip := getMasterIp(*cluster)
+		master_id := connectWith(master_ip)
+		getPeerListFrom(master_id)
+		connectWithPeers()
 		go cur_node.run()
-		proposeJoin(i)
+		proposeJoin(master_id)
 	} else {
+		connectWithPeers()
 		go cur_node.run()
+		cur_node.raft.Campaign(cur_node.ctx)
 	}
 
-	for cur_node.id == 1 && cur_node.raft.Status().Lead != 1 {
-		time.Sleep(100 * time.Millisecond)
-	}
+	go trackPeerList()
+	/*
+		for cur_node.id == 1 && cur_node.raft.Status().Lead != 1 {
+			time.Sleep(100 * time.Millisecond)
+		}
+	*/
 
 	fmt.Println("proposal by node ", cur_node.id)
 	nodeID := strconv.Itoa(int(cur_node.id))
-	cur_node.raft.Propose(cur_node.ctx, []byte("mykey"+nodeID+":myvalue"+nodeID))
-
-	for cur_node.raft.Status().Lead != 1 {
-		time.Sleep(100 * time.Millisecond)
+	prop := &keyvalRequest{
+		Op:  "Set",
+		Key: []byte("node" + nodeID),
+		Val: []byte("val" + nodeID),
 	}
 
+	var buf bytes.Buffer
+	gob.Register(prop)
+	enc := gob.NewEncoder(&buf)
+	err := enc.Encode(prop)
+	if err != nil {
+		glog.Fatalf("encode:", err)
+	}
+	propByte := buf.Bytes()
+	cur_node.raft.Propose(cur_node.ctx, []byte(propByte))
+
+	/*
+		for cur_node.raft.Status().Lead != 1 {
+			time.Sleep(100 * time.Millisecond)
+		}
+	*/
+
 	count := 0
-	for count != 3 {
+	for count != 55 {
 		count = 0
 		fmt.Printf("** Node %v **\n", cur_node.id)
 		for k, v := range cur_node.pstore {
@@ -333,9 +565,6 @@ func main() {
 			count += 1
 		}
 		fmt.Printf("*************\n")
-		time.Sleep(1000 * time.Millisecond)
+		time.Sleep(5 * time.Second)
 	}
-
-	time.Sleep(1000 * time.Millisecond)
-
 }
