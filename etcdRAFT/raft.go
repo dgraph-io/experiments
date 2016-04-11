@@ -53,6 +53,12 @@ type helloRPC struct {
 	Addr string
 }
 
+type keyvalRequest struct {
+	Op  string
+	Key []byte
+	Val []byte
+}
+
 func (w *Worker) Hello(query *conn.Query, reply *conn.Reply) error {
 	buf := bytes.NewBuffer(query.Data)
 	dec := gob.NewDecoder(buf)
@@ -279,8 +285,19 @@ func (n *node) processSnapshot(snapshot raftpb.Snapshot) {
 func (n *node) process(entry raftpb.Entry) {
 	log.Printf("node %v: processing entry: %v\n", n.id, entry)
 	if entry.Type == raftpb.EntryNormal && entry.Data != nil {
-		parts := bytes.SplitN(entry.Data, []byte(":"), 2)
-		n.pstore[string(parts[0])] = string(parts[1])
+		buf := bytes.NewBuffer(entry.Data)
+		dec := gob.NewDecoder(buf)
+		var v keyvalRequest
+		err := dec.Decode(&v)
+		if err != nil {
+			glog.Fatal("decode keyvalRequest:", err)
+		}
+
+		if v.Op == "Set" {
+			n.pstore[string(v.Key)] = string(v.Val)
+		} else if v.Op == "Del" {
+			delete(n.pstore, string(v.Key))
+		}
 	}
 }
 
@@ -517,7 +534,21 @@ func main() {
 
 	fmt.Println("proposal by node ", cur_node.id)
 	nodeID := strconv.Itoa(int(cur_node.id))
-	cur_node.raft.Propose(cur_node.ctx, []byte("mykey"+nodeID+":myvalue"+nodeID))
+	prop := &keyvalRequest{
+		Op:  "Set",
+		Key: []byte("node" + nodeID),
+		Val: []byte("val" + nodeID),
+	}
+
+	var buf bytes.Buffer
+	gob.Register(prop)
+	enc := gob.NewEncoder(&buf)
+	err := enc.Encode(prop)
+	if err != nil {
+		glog.Fatalf("encode:", err)
+	}
+	propByte := buf.Bytes()
+	cur_node.raft.Propose(cur_node.ctx, []byte(propByte))
 
 	/*
 		for cur_node.raft.Status().Lead != 1 {
