@@ -193,7 +193,8 @@ func sendOverNetwork(ctx context.Context, message raftpb.Message) {
 	pool, ok := pools[message.To]
 	if !ok {
 		glog.WithField("From", cur_node.id).WithField("To", message.To).
-			Fatal("Error in making connetions")
+			Error("Error in making connetions")
+		return
 	}
 	addr := pool.Addr
 	fmt.Println(addr)
@@ -228,6 +229,33 @@ func RemoveNodeFromCluster(id uint64) {
 		NodeID:  id,
 		Context: []byte(""),
 	})
+	delete(peers, id)
+	delete(pools, id)
+	requestOtherNodesToRemove(id)
+}
+
+func requestOtherNodesToRemove(id uint64) {
+	for idRem, _ := range peers {
+		go removeFromPeerList(strconv.Itoa(int(id)), idRem)
+	}
+}
+
+func removeFromPeerList(id string, idRem uint64) {
+	pool := pools[idRem]
+	query := new(conn.Query)
+	query.Data = []byte(id)
+	reply := new(conn.Reply)
+	if err := pool.Call("Worker.RemovePeer", query, reply); err != nil {
+		glog.WithField("call", "Worker.RemovePeer").Fatal(err)
+	}
+}
+
+func (w *Worker) RemovePeer(query *conn.Query, reply *conn.Reply) error {
+	id, _ := strconv.Atoi(string(query.Data))
+	id1 := uint64(id)
+	delete(peers, id1)
+	delete(pools, id1)
+	return nil
 }
 
 func (w *Worker) ReceiveOverNetwork(query *conn.Query, reply *conn.Reply) error {
@@ -349,6 +377,43 @@ func getPeerListFrom(id uint64) {
 	updatePeerList(v)
 }
 
+func checkConnection(id uint64) error {
+	pool := pools[id]
+	query := new(conn.Query)
+	reply := new(conn.Reply)
+	if err := pool.Call("Worker.Ping", query, reply); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (w *Worker) Ping(query *conn.Query, reply *conn.Reply) error {
+	reply.Data = []byte("reachable")
+	return nil
+}
+
+func checkPeerList() {
+	for k, _ := range peers {
+		err := checkConnection(k)
+		if err != nil {
+			delete(peers, k)
+			delete(pools, k)
+		}
+	}
+	fmt.Println("####################")
+	for k, _ := range pools {
+		fmt.Println(k)
+	}
+	fmt.Println("####################")
+}
+
+func trackPeerList() {
+	for {
+		time.Sleep(10 * time.Second)
+		go checkPeerList()
+	}
+}
+
 func updatePeerList(pl map[uint64]string) {
 	for k, v := range pl {
 		if _, ok := pools[k]; !ok {
@@ -433,15 +498,17 @@ func main() {
 	if *cluster != "" {
 		master_ip := getMasterIp(*cluster)
 		master_id := connectWith(master_ip)
-		go cur_node.run()
 		getPeerListFrom(master_id)
 		connectWithPeers()
+		go cur_node.run()
 		proposeJoin(master_id)
 	} else {
+		connectWithPeers()
 		go cur_node.run()
 		cur_node.raft.Campaign(cur_node.ctx)
 	}
 
+	go trackPeerList()
 	/*
 		for cur_node.id == 1 && cur_node.raft.Status().Lead != 1 {
 			time.Sleep(100 * time.Millisecond)
