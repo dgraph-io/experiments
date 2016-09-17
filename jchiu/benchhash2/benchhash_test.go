@@ -21,6 +21,59 @@ var (
 	}
 )
 
+func BenchmarkControl(b *testing.B) {
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			rand.Uint32()
+		}
+	})
+}
+
+func BenchmarkControl2(b *testing.B) {
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			rand.Uint32()
+			rand.Uint32()
+		}
+	})
+}
+
+func BenchmarkControl3(b *testing.B) {
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			rand.Uint32()
+			rand.Uint32()
+			rand.Uint32()
+		}
+	})
+}
+
+func BenchmarkControl5(b *testing.B) {
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			rand.Uint32()
+			rand.Uint32()
+			rand.Uint32()
+			rand.Uint32()
+			rand.Uint32()
+		}
+	})
+}
+
+func BenchmarkControl7(b *testing.B) {
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			rand.Uint32()
+			rand.Uint32()
+			rand.Uint32()
+			rand.Uint32()
+			rand.Uint32()
+			rand.Uint32()
+			rand.Uint32()
+		}
+	})
+}
+
 func BenchmarkRead(b *testing.B) {
 	for _, p := range hashPairs {
 		b.Run(p.label, func(b *testing.B) {
