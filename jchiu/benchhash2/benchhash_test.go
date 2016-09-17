@@ -25,6 +25,7 @@ func BenchmarkRead(b *testing.B) {
 	for _, p := range hashPairs {
 		b.Run(p.label, func(b *testing.B) {
 			h := p.newFunc()
+			b.StartTimer()
 			b.RunParallel(func(pb *testing.PB) {
 				for pb.Next() {
 					h.Get(rand.Uint32())
@@ -38,6 +39,7 @@ func BenchmarkWrite(b *testing.B) {
 	for _, p := range hashPairs {
 		b.Run(p.label, func(b *testing.B) {
 			h := p.newFunc()
+			b.StartTimer()
 			b.RunParallel(func(pb *testing.PB) {
 				for pb.Next() {
 					h.Put(rand.Uint32(), rand.Uint32())
@@ -52,6 +54,7 @@ func BenchmarkReadWrite(b *testing.B) {
 	for _, p := range hashPairs {
 		b.Run(p.label, func(b *testing.B) {
 			h := p.newFunc()
+			b.StartTimer()
 			b.RunParallel(func(pb *testing.PB) {
 				for pb.Next() {
 					h.Put(rand.Uint32(), rand.Uint32())
@@ -67,6 +70,7 @@ func BenchmarkRead3Write1(b *testing.B) {
 	for _, p := range hashPairs {
 		b.Run(p.label, func(b *testing.B) {
 			h := p.newFunc()
+			b.StartTimer()
 			b.RunParallel(func(pb *testing.PB) {
 				for pb.Next() {
 					h.Put(rand.Uint32(), rand.Uint32())
@@ -84,6 +88,7 @@ func BenchmarkRead1Write3(b *testing.B) {
 	for _, p := range hashPairs {
 		b.Run(p.label, func(b *testing.B) {
 			h := p.newFunc()
+			b.StartTimer()
 			b.RunParallel(func(pb *testing.PB) {
 				for pb.Next() {
 					h.Put(rand.Uint32(), rand.Uint32())

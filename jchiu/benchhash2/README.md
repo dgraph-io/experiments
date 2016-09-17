@@ -1,5 +1,3 @@
-# Sample results
-
 Note that `ShardedGoMap64` means we have 64 shards of standard Go maps.
 
 Here is what each setup is trying to measure.
@@ -9,6 +7,15 @@ Here is what each setup is trying to measure.
 * BenchmarkReadWrite: One concurrent write, followed by one concurrent read.
 * BenchmarkRead3Write1: Three reads, one write.
 * BenchmarkRead1Write3: Three writes, one read.
+
+To run the test, do
+
+```
+
+$ go test -bench=.
+```
+
+# Sample results
 
 ```
 testing: warning: no tests to run
