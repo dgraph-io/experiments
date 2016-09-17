@@ -2,6 +2,7 @@
 //%module rocksdbswig
 
 %{
+#include <string>
 #include <rocksdb/slice.h>
 #include <rocksdb/status.h>
 #include <rocksdb/options.h>
@@ -23,7 +24,7 @@ using namespace rocksdb;
 %include <typemaps.i>
 
 // Disable mapping between C++ and Go strings to prevent extra copying.
-%include "std_string.i"
+//%include "std_string.i"
 // %include "cpointer.i"
 
 /*%typemap(in) rocksdb::DB ** (rocksdb::DB *temp) {
@@ -35,6 +36,8 @@ using namespace rocksdb;
 }*/
 
 %apply DB **OUTPUT { DB **dbptr };
+
+%include "/usr/include/c++/5.4.0/string"
 
 %include <rocksdb/slice.h>
 %include <rocksdb/status.h>
