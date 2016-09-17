@@ -19,8 +19,12 @@ $ go test -bench=.
 # Sample results
 
 In theory, you should subtract the time taken to compute the random integers.
+
 For example, for `BenchmarkRead`, GoMap takes 131-59.4ns while GotomicMap takes
-163-59.4ns, which is about 45% slower.
+163-59.4ns, which is 1.45X slower. (2X slower means it takes twice as long.)
+
+For example, for `BenchmarkWrite`, GoMap takes 320-116ns while GotomicMap takes
+867-116ns, which is 3.68X slower.
 
 ```
 testing: warning: no tests to run
