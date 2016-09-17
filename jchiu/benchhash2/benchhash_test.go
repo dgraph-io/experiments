@@ -5,19 +5,19 @@ import (
 	"testing"
 )
 
-type hashPair struct {
+type experiment struct {
 	label   string
 	newFunc func() HashMap
 }
 
 var (
-	hashPairs = []hashPair{
-		hashPair{"GoMap", NewGoMap},
-		hashPair{"GotomicMap", NewGotomicMap},
-		hashPair{"ShardedGoMap8", NewShardedGoMap8},
-		hashPair{"ShardedGoMap16", NewShardedGoMap16},
-		hashPair{"ShardedGoMap32", NewShardedGoMap32},
-		hashPair{"ShardedGoMap64", NewShardedGoMap64},
+	experiments = []experiment{
+		experiment{"GoMap", NewGoMap},
+		experiment{"GotomicMap", NewGotomicMap},
+		experiment{"ShardedGoMap8", NewShardedGoMap8},
+		experiment{"ShardedGoMap16", NewShardedGoMap16},
+		experiment{"ShardedGoMap32", NewShardedGoMap32},
+		experiment{"ShardedGoMap64", NewShardedGoMap64},
 	}
 )
 
@@ -75,7 +75,7 @@ func BenchmarkControl7(b *testing.B) {
 }
 
 func BenchmarkRead(b *testing.B) {
-	for _, p := range hashPairs {
+	for _, p := range experiments {
 		b.Run(p.label, func(b *testing.B) {
 			h := p.newFunc()
 			b.StartTimer()
@@ -89,7 +89,7 @@ func BenchmarkRead(b *testing.B) {
 }
 
 func BenchmarkWrite(b *testing.B) {
-	for _, p := range hashPairs {
+	for _, p := range experiments {
 		b.Run(p.label, func(b *testing.B) {
 			h := p.newFunc()
 			b.StartTimer()
@@ -104,7 +104,7 @@ func BenchmarkWrite(b *testing.B) {
 
 // Equal number of reads and writes.
 func BenchmarkReadWrite(b *testing.B) {
-	for _, p := range hashPairs {
+	for _, p := range experiments {
 		b.Run(p.label, func(b *testing.B) {
 			h := p.newFunc()
 			b.StartTimer()
@@ -120,7 +120,7 @@ func BenchmarkReadWrite(b *testing.B) {
 
 // Three reads, one write.
 func BenchmarkRead3Write1(b *testing.B) {
-	for _, p := range hashPairs {
+	for _, p := range experiments {
 		b.Run(p.label, func(b *testing.B) {
 			h := p.newFunc()
 			b.StartTimer()
@@ -138,7 +138,7 @@ func BenchmarkRead3Write1(b *testing.B) {
 
 // Three writes, one read.
 func BenchmarkRead1Write3(b *testing.B) {
-	for _, p := range hashPairs {
+	for _, p := range experiments {
 		b.Run(p.label, func(b *testing.B) {
 			h := p.newFunc()
 			b.StartTimer()
