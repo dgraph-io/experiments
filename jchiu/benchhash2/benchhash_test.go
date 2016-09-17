@@ -15,9 +15,7 @@ var (
 	experiments = []experiment{
 		experiment{"GoMap", NewGoMap},
 		experiment{"GotomicMap", NewGotomicMap},
-		experiment{"ShardedGoMap8", NewShardedGoMap8},
-		experiment{"ShardedGoMap16", NewShardedGoMap16},
-		experiment{"ShardedGoMap32", NewShardedGoMap32},
+		experiment{"ShardedGoMap16", NewShardedGoMap8},
 		experiment{"ShardedGoMap64", NewShardedGoMap64},
 	}
 )
@@ -39,23 +37,20 @@ func BenchmarkWriteControl(b *testing.B) {
 	})
 }
 
-func benchmarkReadWriteControl(b *testing.B, readFrac float32) {
-	b.RunParallel(func(pb *testing.PB) {
-		for pb.Next() {
-			if rand.Float32() < readFrac {
-				rand.Uint32()
-			} else {
-				rand.Uint32()
-				rand.Uint32()
-			}
-		}
-	})
-}
-
 func BenchmarkReadWriteControl(b *testing.B) {
 	for i := 0; i <= 20; i++ {
+		readFrac := float32(i) / 20
 		b.Run(strconv.Itoa(i), func(b *testing.B) {
-			benchmarkReadWriteControl(b, float32(i)/20)
+			b.RunParallel(func(pb *testing.PB) {
+				for pb.Next() {
+					if rand.Float32() < readFrac {
+						rand.Uint32()
+					} else {
+						rand.Uint32()
+						rand.Uint32()
+					}
+				}
+			})
 		})
 	}
 }

@@ -26,4 +26,4 @@ for mapType in ('GoMap', 'GotomicMap', 'ShardedGoMap16', 'ShardedGoMap64'):
 	plt.xlabel('readFrac')
 
 plt.legend()
-plt.show()
+plt.savefig('plot.png')

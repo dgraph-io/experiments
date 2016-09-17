@@ -12,7 +12,7 @@ Here is what each setup is trying to measure.
 To run the test, do
 
 ```
-go test -bench=. | tee results.txt
+go test -timeout 100m -benchtime 5s -bench=. | tee results.txt
 ```
 
 # Sample results
