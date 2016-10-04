@@ -1,7 +1,10 @@
 package chanqueue
 
 import (
+	"sync"
 	"testing"
+
+	"github.com/textnode/gringo"
 )
 
 func BenchmarkChan(b *testing.B) {
@@ -19,28 +22,53 @@ func BenchmarkChan(b *testing.B) {
 
 func BenchmarkQueue(b *testing.B) {
 	q := NewQueue()
+	var wg sync.WaitGroup
+	wg.Add(1)
 	b.StartTimer()
 	go func() {
+		defer wg.Done()
 		for i := 0; i < b.N; i++ {
 			q.Push()
 		}
-		q.Done()
 	}()
-	for !q.IsDone() {
+	for i := 0; i < b.N; i++ {
 		q.Pop()
 	}
+	wg.Wait()
 }
 
 func BenchmarkCQueue(b *testing.B) {
 	q := NewCQueue()
+	var wg sync.WaitGroup
+	wg.Add(1)
 	b.StartTimer()
 	go func() {
+		defer wg.Done()
 		for i := 0; i < b.N; i++ {
 			q.Push()
 		}
-		q.Done()
 	}()
-	for !q.IsDone() {
+	for i := 0; i < b.N; i++ {
 		q.Pop()
 	}
+	wg.Wait()
+}
+
+var payload = *gringo.NewPayload(1)
+
+func BenchmarkGringo(b *testing.B) {
+	q := gringo.NewGringo()
+	var wg sync.WaitGroup
+	wg.Add(1)
+	b.StartTimer()
+	go func() {
+		defer wg.Done()
+		for i := 0; i < b.N; i++ {
+			q.Write(payload)
+		}
+	}()
+	for i := 0; i < b.N; i++ {
+		q.Read()
+	}
+	wg.Wait()
 }
