@@ -1,21 +1,24 @@
 We have seen numerous articles complaining about how slow channels are. However,
-in the following benchmarks, channels seem to do pretty well. Here are the
-results.
+in the following benchmarks, channels seem to do pretty well.
+
+We will test four different implementations: channels, simple array, circular
+buffer and finally Gringo, which is a lock-free ring buffer. You can get it by:
 
 ```
-BenchmarkChan-8     	20000000	        70.3 ns/op
-BenchmarkQueue-8    	10000000	       222 ns/op
-BenchmarkCQueue-8   	 1000000	      2495 ns/op
+go get github.com/textnode/gringo/...
 ```
 
-`Queue` uses a simple Go array that can grow.
+Here are the results.
 
-`CQueue` uses a circular buffer. If you try to push to a full buffer, it blocks. If
-you try to pop from an empty buffer, it blocks. This behaves just like a buffered
-channels.
+```
+BenchmarkChan-8     	20000000	        67.0 ns/op
+BenchmarkQueue-8    	10000000	       172 ns/op
+BenchmarkCQueue-8   	 5000000	       307 ns/op
+BenchmarkGringo-8   	20000000	        81.8 ns/op
+```
 
 The tests are constructed such that there is one goroutine pushing stuff into a
-queue or channel. Once it is done, it marks the queue as done. The main thread
-keeps popping until the queue is empty and the queue is marked as done.
+queue or channel. The main thread keeps popping until the queue is empty.
 
-Channel seems to run much faster than `Queue` or `CQueue`.
+Channel seems to run faster than the other implementations. This might change if
+we have more producers or more consumers.
