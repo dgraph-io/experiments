@@ -1,4 +1,4 @@
-namespace task;
+namespace fuids;
 
 table UidList {
 	uids:[ulong];

@@ -1,6 +1,14 @@
 package flats
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/dgraph-io/experiments/flats/fuids"
+	flatbuffers "github.com/google/flatbuffers/go"
+)
+
+func ToAndFrom() {
+}
 
 func ToAndFromProto(uids []uint64) error {
 	var ul UidList
@@ -22,5 +30,22 @@ func ToAndFromProto(uids []uint64) error {
 }
 
 func ToAndFromFlat(uids []uint64) error {
+	b := flatbuffers.NewBuilder(0)
+	fuids.UidListStartUidsVector(b, len(uids))
+	for _, uid := range uids {
+		b.PrependUint64(uid)
+	}
+	ve := b.EndVector(len(uids))
+	fuids.UidListStart(b)
+	fuids.UidListAddUids(b, ve)
+	ue := fuids.UidListEnd(b)
+	b.Finish(ue)
+	data := b.FinishedBytes()
+
+	nl := fuids.GetRootAsUidList(data, 0)
+	if nl.UidsLength() != len(uids) {
+		return fmt.Errorf("Length doesn't match")
+	}
+
 	return nil
 }
