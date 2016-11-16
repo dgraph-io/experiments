@@ -1,0 +1,5 @@
+namespace task;
+
+table UidList {
+	uids:[ulong];
+}
