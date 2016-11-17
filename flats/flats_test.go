@@ -20,10 +20,14 @@ func BenchmarkToAndFrom(b *testing.B) {
 	}
 
 	for _, bm := range benchmarks {
-		for which := 0; which < 2; which++ {
-			name := "Proto"
-			if which == 1 {
+		for which := 0; which < 3; which++ {
+			var name string
+			if which == 0 {
 				name = "Flatb"
+			} else if which == 1 {
+				name = "Proto"
+			} else if which == 2 {
+				name = "ProtoFixed"
 			}
 
 			b.Run(fmt.Sprintf("%s-%d", name, bm.k), func(b *testing.B) {
@@ -36,9 +40,11 @@ func BenchmarkToAndFrom(b *testing.B) {
 				for i := 0; i < b.N; i++ {
 					var err error
 					if which == 0 {
-						err = ToAndFromProto(uids)
-					} else {
 						err = ToAndFromFlat(uids)
+					} else if which == 1 {
+						err = ToAndFromProto(uids)
+					} else if which == 2 {
+						err = ToAndFromProtoAlt(uids)
 					}
 					if err != nil {
 						b.Error(err)
