@@ -10,6 +10,7 @@ It is generated from these files:
 
 It has these top-level messages:
 	UidList
+	UidListAlt
 */
 package flats
 
@@ -39,8 +40,18 @@ func (m *UidList) String() string            { return proto.CompactTextString(m)
 func (*UidList) ProtoMessage()               {}
 func (*UidList) Descriptor() ([]byte, []int) { return fileDescriptorUids, []int{0} }
 
+type UidListAlt struct {
+	Uid []uint64 `protobuf:"fixed64,1,rep,packed,name=uid" json:"uid,omitempty"`
+}
+
+func (m *UidListAlt) Reset()                    { *m = UidListAlt{} }
+func (m *UidListAlt) String() string            { return proto.CompactTextString(m) }
+func (*UidListAlt) ProtoMessage()               {}
+func (*UidListAlt) Descriptor() ([]byte, []int) { return fileDescriptorUids, []int{1} }
+
 func init() {
 	proto.RegisterType((*UidList)(nil), "flats.UidList")
+	proto.RegisterType((*UidListAlt)(nil), "flats.UidListAlt")
 }
 func (m *UidList) Marshal() (data []byte, err error) {
 	size := m.Size()
@@ -62,6 +73,47 @@ func (m *UidList) MarshalTo(data []byte) (int, error) {
 			data[i] = 0x8
 			i++
 			i = encodeVarintUids(data, i, uint64(num))
+		}
+	}
+	return i, nil
+}
+
+func (m *UidListAlt) Marshal() (data []byte, err error) {
+	size := m.Size()
+	data = make([]byte, size)
+	n, err := m.MarshalTo(data)
+	if err != nil {
+		return nil, err
+	}
+	return data[:n], nil
+}
+
+func (m *UidListAlt) MarshalTo(data []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Uid) > 0 {
+		data[i] = 0xa
+		i++
+		i = encodeVarintUids(data, i, uint64(len(m.Uid)*8))
+		for _, num := range m.Uid {
+			data[i] = uint8(num)
+			i++
+			data[i] = uint8(num >> 8)
+			i++
+			data[i] = uint8(num >> 16)
+			i++
+			data[i] = uint8(num >> 24)
+			i++
+			data[i] = uint8(num >> 32)
+			i++
+			data[i] = uint8(num >> 40)
+			i++
+			data[i] = uint8(num >> 48)
+			i++
+			data[i] = uint8(num >> 56)
+			i++
 		}
 	}
 	return i, nil
@@ -101,6 +153,15 @@ func (m *UidList) Size() (n int) {
 		for _, e := range m.Uid {
 			n += 1 + sovUids(uint64(e))
 		}
+	}
+	return n
+}
+
+func (m *UidListAlt) Size() (n int) {
+	var l int
+	_ = l
+	if len(m.Uid) > 0 {
+		n += 1 + sovUids(uint64(len(m.Uid)*8)) + len(m.Uid)*8
 	}
 	return n
 }
@@ -167,6 +228,114 @@ func (m *UidList) Unmarshal(data []byte) error {
 				}
 			}
 			m.Uid = append(m.Uid, v)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipUids(data[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthUids
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *UidListAlt) Unmarshal(data []byte) error {
+	l := len(data)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowUids
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := data[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: UidListAlt: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: UidListAlt: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowUids
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := data[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthUids
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint64
+					if (iNdEx + 8) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 8
+					v = uint64(data[iNdEx-8])
+					v |= uint64(data[iNdEx-7]) << 8
+					v |= uint64(data[iNdEx-6]) << 16
+					v |= uint64(data[iNdEx-5]) << 24
+					v |= uint64(data[iNdEx-4]) << 32
+					v |= uint64(data[iNdEx-3]) << 40
+					v |= uint64(data[iNdEx-2]) << 48
+					v |= uint64(data[iNdEx-1]) << 56
+					m.Uid = append(m.Uid, v)
+				}
+			} else if wireType == 1 {
+				var v uint64
+				if (iNdEx + 8) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 8
+				v = uint64(data[iNdEx-8])
+				v |= uint64(data[iNdEx-7]) << 8
+				v |= uint64(data[iNdEx-6]) << 16
+				v |= uint64(data[iNdEx-5]) << 24
+				v |= uint64(data[iNdEx-4]) << 32
+				v |= uint64(data[iNdEx-3]) << 40
+				v |= uint64(data[iNdEx-2]) << 48
+				v |= uint64(data[iNdEx-1]) << 56
+				m.Uid = append(m.Uid, v)
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Uid", wireType)
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipUids(data[iNdEx:])
@@ -296,11 +465,13 @@ var (
 func init() { proto.RegisterFile("uids.proto", fileDescriptorUids) }
 
 var fileDescriptorUids = []byte{
-	// 94 bytes of a gzipped FileDescriptorProto
+	// 114 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xe2, 0xe2, 0x2a, 0xcd, 0x4c, 0x29,
 	0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4d, 0xcb, 0x49, 0x2c, 0x29, 0x56, 0x92, 0xe6,
 	0x62, 0x0f, 0xcd, 0x4c, 0xf1, 0xc9, 0x2c, 0x2e, 0x11, 0x12, 0xe0, 0x62, 0x2e, 0xcd, 0x4c, 0x91,
-	0x60, 0x54, 0x60, 0xd6, 0x60, 0x09, 0x02, 0x31, 0x9d, 0x04, 0x4e, 0x3c, 0x92, 0x63, 0xbc, 0xf0,
-	0x48, 0x8e, 0xf1, 0xc1, 0x23, 0x39, 0xc6, 0x19, 0x8f, 0xe5, 0x18, 0x92, 0xd8, 0xc0, 0x9a, 0x8d,
-	0x01, 0x01, 0x00, 0x00, 0xff, 0xff, 0x0b, 0xb8, 0xe7, 0x71, 0x4a, 0x00, 0x00, 0x00,
+	0x60, 0x54, 0x60, 0xd6, 0x60, 0x09, 0x02, 0x31, 0x95, 0x94, 0xb8, 0xb8, 0xa0, 0x92, 0x8e, 0x39,
+	0x25, 0x42, 0x22, 0x08, 0x79, 0x36, 0x27, 0x26, 0x01, 0x46, 0xb0, 0x1a, 0x27, 0x81, 0x13, 0x8f,
+	0xe4, 0x18, 0x2f, 0x3c, 0x92, 0x63, 0x7c, 0xf0, 0x48, 0x8e, 0x71, 0xc6, 0x63, 0x39, 0x86, 0x24,
+	0x36, 0xb0, 0x05, 0xc6, 0x80, 0x00, 0x00, 0x00, 0xff, 0xff, 0x69, 0x01, 0x44, 0x1b, 0x6e, 0x00,
+	0x00, 0x00,
 }

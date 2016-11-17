@@ -5,3 +5,7 @@ package flats;
 message UidList {
 	repeated uint64 uid = 1;
 }
+
+message UidListAlt {
+	repeated fixed64 uid = 1 [packed=true];
+}

@@ -1,9 +1,0 @@
-// protoc --gofast_out=.  uids_alt.proto
-
-syntax = "proto3";
-
-package flats;
-
-message UidListAlt {
-	repeated fixed64 uid = 1 [packed=true];
-}
