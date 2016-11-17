@@ -3,7 +3,6 @@ package flats
 import (
 	"fmt"
 	"math/rand"
-	"runtime"
 	"testing"
 )
 
@@ -56,8 +55,8 @@ func BenchmarkToAndFrom(b *testing.B) {
 					if max < sz {
 						max = sz
 					}
+					// runtime.GC() -- Actually makes FB looks worse.
 				}
-				runtime.GC()
 			})
 		}
 	}
@@ -75,16 +74,21 @@ func TestToAndFrom(t *testing.T) {
 		var sz int
 		err, sz = ToAndFromFlat(uids)
 		if err != nil {
+			t.Error(err)
 			t.Fail()
 		}
 		fmt.Printf("Flatb k:%d sz:%d\n", k, sz)
+
 		err, sz = ToAndFromProtoAlt(uids)
 		if err != nil {
+			t.Error(err)
 			t.Fail()
 		}
 		fmt.Printf("Fixed k:%d sz:%d\n", k, sz)
+
 		err, sz = ToAndFromProto(uids)
 		if err != nil {
+			t.Error(err)
 			t.Fail()
 		}
 		fmt.Printf("Proto k:%d sz:%d\n", k, sz)

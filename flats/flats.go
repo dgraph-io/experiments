@@ -26,6 +26,11 @@ func ToAndFromProto(uids []uint64) (error, int) {
 	if len(nl.Uid) != len(ul.Uid) {
 		return fmt.Errorf("Length doesn't match"), 0
 	}
+	for i := 0; i < len(uids); i++ {
+		if nl.Uid[i] != uids[i] {
+			return fmt.Errorf("ID doesn't match at index: %v", i), 0
+		}
+	}
 	return nil, len(data)
 }
 
@@ -45,14 +50,19 @@ func ToAndFromProtoAlt(uids []uint64) (error, int) {
 	if len(nl.Uid) != len(ul.Uid) {
 		return fmt.Errorf("Length doesn't match"), 0
 	}
+	for i := 0; i < len(uids); i++ {
+		if nl.Uid[i] != uids[i] {
+			return fmt.Errorf("ID doesn't match at index: %v", i), 0
+		}
+	}
 	return nil, len(data)
 }
 
 func ToAndFromFlat(uids []uint64) (error, int) {
 	b := flatbuffers.NewBuilder(0)
 	fuids.UidListStartUidsVector(b, len(uids))
-	for _, uid := range uids {
-		b.PrependUint64(uid)
+	for i := len(uids) - 1; i >= 0; i-- {
+		b.PrependUint64(uids[i])
 	}
 	ve := b.EndVector(len(uids))
 	fuids.UidListStart(b)
@@ -64,6 +74,12 @@ func ToAndFromFlat(uids []uint64) (error, int) {
 	nl := fuids.GetRootAsUidList(data, 0)
 	if nl.UidsLength() != len(uids) {
 		return fmt.Errorf("Length doesn't match"), 0
+	}
+	for i := 0; i < len(uids); i++ {
+		if nl.Uids(i) != uids[i] {
+			return fmt.Errorf("ID doesn't match at index: %v Expected: %v. Got: %v",
+				i, uids[i], nl.Uids(i)), 0
+		}
 	}
 
 	return nil, len(data)
