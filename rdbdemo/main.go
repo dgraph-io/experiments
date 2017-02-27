@@ -148,6 +148,7 @@ func allocDemo() {
 			a[i] = a[i][:10]
 		}
 		// We find that the memory remains allocated, as expected, and memstats and ps both reflect that.
+		runtime.GC()
 		debug.FreeOSMemory()
 		time.Sleep(time.Second)
 	}
