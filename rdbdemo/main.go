@@ -39,7 +39,12 @@ func ps() int {
 
 // This does not seem to have any memory leak. Memory usage fluctuates around 160000K for a
 // really really long time.
-func putDemo(st *store.Store) {
+func putDemo() {
+	x.AssertTrue(len(*dir) > 0)
+	st, err := store.NewStore(*dir)
+	x.Check(err)
+	defer st.Close()
+
 	for i := 0; i < 100000000; i++ {
 		if (i % 100000) == 0 {
 			fmt.Printf("Written %d keys\n", i)
@@ -55,7 +60,12 @@ func putDemo(st *store.Store) {
 
 // This does not seem to have any major memory leak. Over 1 minute, it increases by 4K. Might be
 // just due to memory fragmentation?
-func getDemo(st *store.Store) {
+func getDemo() {
+	x.AssertTrue(len(*dir) > 0)
+	st, err := store.NewStore(*dir)
+	x.Check(err)
+	defer st.Close()
+
 	for i := 0; i < 100000; i++ {
 		key := []byte(fmt.Sprintf("key%09x", i))
 		val := bytes.Repeat([]byte("v"), 5000*5+9)
@@ -80,7 +90,12 @@ func getDemo(st *store.Store) {
 
 // We see some memory leak here but it doesn't seem severe. Over ~10 minutes, it grows by 100M.
 // Grows to 5.1% after 53 mins.
-func writeBatchDemo(st *store.Store) {
+func writeBatchDemo() {
+	x.AssertTrue(len(*dir) > 0)
+	st, err := store.NewStore(*dir)
+	x.Check(err)
+	defer st.Close()
+
 	for i := 0; i < 100000; i++ {
 		key := []byte(fmt.Sprintf("key%09x", i))
 		val := bytes.Repeat([]byte("v"), 5000*5+9)
@@ -241,17 +256,13 @@ func iterDemo(st *store.Store) {
 
 func main() {
 	x.Init()
-	x.AssertTrue(len(*dir) > 0)
-	st, err := store.NewStore(*dir)
-	x.Check(err)
-	defer st.Close()
 
-	//	go putDemo(st)
-	//	go getDemo(st)
-	//  go writeBatchDemo(st)
+	//	go putDemo()
+	//	go getDemo()
+	//  go writeBatchDemo()
 	//	go allocDemo()
 	go allocDemo2()
-	//	go iterDemo(st)
+	//	go iterDemo()
 
 	var ms runtime.MemStats
 	for {
