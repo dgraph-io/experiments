@@ -127,6 +127,31 @@ func writeBatchDemo() {
 	fmt.Printf("Size sum %d\n", sum)
 }
 
+// We repeatedly create iterators. However, it seems that there is no memory leak here either
+// as long as you remember to destroy the iterator.
+func iterDemo(st *store.Store) {
+	for i := 0; i < 100000; i++ {
+		key := []byte(fmt.Sprintf("key%09x", i))
+		val := bytes.Repeat([]byte("v"), 5000*5+9)
+		valSuffix := val[5000*5:]
+		x.AssertTrue(9 == copy(valSuffix, []byte(fmt.Sprintf("%09x", i))))
+		x.Check(st.SetOne(key, val))
+	}
+
+	var sum int
+	for i := 0; i < 10000; i++ {
+		if (i % 1000) == 0 {
+			fmt.Printf("Iter i\n", i)
+		}
+		it := st.NewIterator()
+		for ; it.Valid(); it.Next() {
+			sum += len(it.Value().Data())
+		}
+		it.Close()
+	}
+	fmt.Printf("Size sum %d\n", sum)
+}
+
 func allocDemo() {
 	n := 50000
 	a := make([][]byte, n)
@@ -155,27 +180,20 @@ func allocDemo() {
 	fmt.Printf("Size sum %d\n", sum)
 }
 
-// I think this explains what we are seeing.
 /*
 Allocated mem
-msMem=514163Kb psMem=31680Kb
-msMem=514204Kb psMem=31688Kb
-msMem=514245Kb psMem=31692Kb
-msMem=514285Kb psMem=31696Kb
+msMem=514159Kb psMem=30628Kb
+msMem=514200Kb psMem=30648Kb
 Filled mem
-msMem=514325Kb psMem=564904Kb
-msMem=514366Kb psMem=564908Kb
-msMem=514406Kb psMem=564920Kb
-msMem=514447Kb psMem=564920Kb
-msMem=514487Kb psMem=564924Kb
-Resizing slices
-msMem=514763Kb psMem=565188Kb
-msMem=2450Kb psMem=565788Kb
-msMem=2450Kb psMem=566564Kb
-msMem=2451Kb psMem=566636Kb
-msMem=2451Kb psMem=566676Kb
+msMem=514241Kb psMem=563864Kb
+msMem=514282Kb psMem=563864Kb
+msMem=514322Kb psMem=563868Kb
+Shrinking all slices
+msMem=487Kb psMem=563976Kb
+msMem=528Kb psMem=563976Kb
+msMem=568Kb psMem=563976Kb
+msMem=608Kb psMem=563976Kb
 
-There are three stages.
 Stage 1: Allocate big chunks of memory in Go.
 Stage 2: Start filling in stuff in these big chunks of memory.
 Stage 3: Reallocate new slices that are much smaller and call debug.FreeOSMemory.
@@ -190,8 +208,8 @@ In Stage 2, we see that msMem ~ psMem. This is because we start using the memory
 to indeed give us the memory.
 
 In Stage 3, we see the problem we face. It is when msMem <<< psMem. To be sure I stare at ps
-directly. Indeed, we are using ~567M and this is RSS (resident memory). It is not clear to me why
-the garbage collector did not return the memory back to the OS.
+directly. Indeed, we are using 500+ M and this is RSS (resident memory). It seems that the GC is
+trying to save some work by not returning memory to the OS unless it is necessary.
 
 USER               PID  %CPU %MEM      VSZ    RSS   TT  STAT STARTED      TIME COMMAND
 jchiu            60333   1.3  6.8 556649020 566724 s000  S+    9:42AM   0:09.24 ./rdbdemo -dir /Users/jchiu/rdbdemo
@@ -203,16 +221,63 @@ func allocDemo2() {
 		a[i] = make([]byte, 10000)
 	}
 	fmt.Println("Allocated mem")
-	time.Sleep(5 * time.Second)
+	time.Sleep(3 * time.Second)
 	for i := 0; i < n; i++ {
 		for j := 0; j < len(a[i]); j++ {
 			a[i][j] = 55
 		}
 	}
 	fmt.Println("Filled mem")
-	time.Sleep(5 * time.Second)
-	fmt.Println("Resizing slices")
+	time.Sleep(3 * time.Second)
+	fmt.Println("Shrinking all slices")
+	for i := 0; i < n; i++ {
+		a[i] = make([]byte, 2)
+	}
+	runtime.GC()
+	debug.FreeOSMemory()
+}
 
+/*
+Similar to allocDemo2. However, for the last stage, instead of shrinking all slices, we
+alternate between small and large slices. We see that in this case, ps says we use the most
+amount of memory.
+
+The reason I think is that before the GC can give us back the space, there were new allocations
+requested for large slices. Hence, the OS has to give us more memory. This might explain why
+if the dgraph server says the mem limit is 1G, then it ends up using 2G. Whereas if it requests
+for 2G, it ends up using 4G.
+
+msMem=663Kb psMem=13632Kb
+Allocated mem
+msMem=514157Kb psMem=30624Kb
+msMem=514197Kb psMem=30628Kb
+Filled mem
+msMem=514237Kb psMem=563844Kb
+msMem=514277Kb psMem=563856Kb
+msMem=514318Kb psMem=563856Kb
+Varying slice sizes
+msMem=535770Kb psMem=564924Kb
+msMem=155477Kb psMem=730632Kb
+msMem=197695Kb psMem=730632Kb
+msMem=165465Kb psMem=730636Kb
+*/
+func allocDemo3() {
+	n := 50000
+	a := make([][]byte, n)
+	for i := 0; i < n; i++ {
+		a[i] = make([]byte, 10000)
+	}
+	fmt.Println("Allocated mem")
+	time.Sleep(3 * time.Second)
+	for i := 0; i < n; i++ {
+		for j := 0; j < len(a[i]); j++ {
+			a[i][j] = 55
+		}
+	}
+	fmt.Println("Filled mem")
+	time.Sleep(3 * time.Second)
+
+	fmt.Println("Varying slice sizes")
 	var sum int
 	for {
 		for i := 0; i < n; i++ {
@@ -221,36 +286,14 @@ func allocDemo2() {
 				// will include that.
 				sum += int(b)
 			}
-			a[i] = make([]byte, 10)
+			if (i % 10) < 7 {
+				a[i] = make([]byte, 2)
+			} else {
+				a[i] = make([]byte, 10000)
+			}
 		}
-		// We find that the memory remains allocated, as expected, and memstats and ps both reflect that.
+		runtime.GC()
 		debug.FreeOSMemory()
-		time.Sleep(time.Second)
-	}
-	fmt.Printf("Size sum %d\n", sum)
-}
-
-// We repeatedly create iterators. However, it seems that there is no memory leak here either
-// as long as you remember to destroy the iterator.
-func iterDemo(st *store.Store) {
-	for i := 0; i < 100000; i++ {
-		key := []byte(fmt.Sprintf("key%09x", i))
-		val := bytes.Repeat([]byte("v"), 5000*5+9)
-		valSuffix := val[5000*5:]
-		x.AssertTrue(9 == copy(valSuffix, []byte(fmt.Sprintf("%09x", i))))
-		x.Check(st.SetOne(key, val))
-	}
-
-	var sum int
-	for i := 0; i < 10000; i++ {
-		if (i % 1000) == 0 {
-			fmt.Printf("Iter i\n", i)
-		}
-		it := st.NewIterator()
-		for ; it.Valid(); it.Next() {
-			sum += len(it.Value().Data())
-		}
-		it.Close()
 	}
 	fmt.Printf("Size sum %d\n", sum)
 }
@@ -260,10 +303,11 @@ func main() {
 
 	//	go putDemo()
 	//	go getDemo()
-	//  go writeBatchDemo()
-	//	go allocDemo()
-	go allocDemo2()
+	//go writeBatchDemo()
 	//	go iterDemo()
+	//	go allocDemo()
+	//	go allocDemo2()
+	go allocDemo3()
 
 	var ms runtime.MemStats
 	for {
