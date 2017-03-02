@@ -306,8 +306,8 @@ func main() {
 	//go writeBatchDemo()
 	//	go iterDemo()
 	//	go allocDemo()
-	//	go allocDemo2()
-	go allocDemo3()
+	go allocDemo2()
+	//	go allocDemo3()
 
 	var ms runtime.MemStats
 	for {
