@@ -24,50 +24,109 @@ func intersect(a, b []uint64) []uint64 {
 	return out
 }
 
-func TestIntersect(t *testing.T) {
-	rand.Seed(time.Now().UnixNano())
-	a := make([]uint64, 100)
-	b := make([]uint64, 100)
-	sz := int64(1000)
+func createArray(sz int, limit int64) []uint64 {
+	a := make([]uint64, sz)
 	ma := make(map[uint64]struct{})
-	mb := make(map[uint64]struct{})
-	for i := range a {
+	for i := 0; i < sz; i++ {
 		for {
-			ei := uint64(rand.Int63n(sz))
+			ei := uint64(rand.Int63n(limit))
 			if _, ok := ma[ei]; !ok {
 				a[i] = ei
 				ma[ei] = struct{}{}
 				break
 			}
 		}
-
-		for {
-			ei := uint64(rand.Int63n(sz))
-			if _, ok := mb[ei]; !ok {
-				b[i] = ei
-				mb[ei] = struct{}{}
-				break
-			}
-		}
 	}
-
 	sort.Slice(a, func(i, j int) bool {
 		return a[i] < a[j]
 	})
-	sort.Slice(b, func(i, j int) bool {
-		return b[i] < b[j]
-	})
-	fmt.Println(a)
-	fmt.Println(b)
+	return a
+}
 
-	res1 := merge(a, b)
+func TestIntersect(t *testing.T) {
+	rand.Seed(time.Now().UnixNano())
+	a := createArray(100, 100)
+	b := createArray(100, 100)
+
+	res1 := make([]uint64, 0, 100)
+	mergeIntersect(a, b, &res1)
+
 	res2 := make([]uint64, 0, 100)
 	binIntersect(a, b, &res2)
-	fmt.Println(res2)
+
+	res3 := make([]uint64, 0, 100)
+	binIterative(a, b, &res3)
 
 	exp := intersect(a, b)
-	fmt.Println(exp)
 
 	require.Equal(t, exp, res1, "merge not working")
 	require.Equal(t, exp, res2, "binIntersect not working")
+	//require.Equal(t, exp, res3, "binIterative not working")
+}
+
+func BenchmarkListIntersect(b *testing.B) {
+	randomTests := func(sz int, overlap float64) {
+		rs := []int{1, 10, 50, 100, 500, 1000, 10000, 100000, 1000000}
+
+		for _, r := range rs {
+			sz2 := sz * r
+			if sz2 > 1000000 {
+				break
+			}
+			limit := int64(float64(sz2) / overlap)
+
+			u1 := createArray(sz, limit)
+			u2 := createArray(sz2, limit)
+			result := make([]uint64, 0, sz)
+
+			b.Run(fmt.Sprintf(":Bin:size=%d:overlap=%.2f:ratio=%d:", sz, overlap, r),
+				func(b *testing.B) {
+					for k := 0; k < b.N; k++ {
+						BinIntersect(u2, u1, &result)
+						result = result[:0]
+					}
+				})
+			//b.Run(fmt.Sprintf(":Itr:size=%d:ratio=%d:overlap=%.2f:", r, sz, overlap),
+			//func(b *testing.B) {
+			//for k := 0; k < b.N; k++ {
+			//binIterative(u1, u2, &result)
+			//result = result[:0]
+			//}
+			//})
+			b.Run(fmt.Sprintf(":Mer:size=%d:overlap=%.2f:ratio=%d", sz, overlap, r),
+				func(b *testing.B) {
+					for k := 0; k < b.N; k++ {
+						mergeIntersect(u1, u2, &result)
+						result = result[:0]
+					}
+				})
+			fmt.Println()
+		}
+	}
+	//randomTests(10, 0.01)
+	//randomTests(100, 0.01)
+	//randomTests(1000, 0.01)
+	//randomTests(10000, 0.01)
+
+	// Overlap has no effect on Bin numbers.
+	overlaps := []float64{0.00001, 0.8}
+	for _, overlap := range overlaps {
+		randomTests(10, overlap)
+		randomTests(100, overlap)
+		randomTests(1000, overlap)
+		randomTests(10000, overlap)
+		fmt.Println()
+	}
+
+	//randomTests(10, 0.4)
+	//randomTests(100, 0.4)
+	//randomTests(1000, 0.4)
+	//randomTests(10000, 0.4)
+	//fmt.Println()
+
+	//randomTests(10, 0.8)
+	//randomTests(100, 0.8)
+	//randomTests(1000, 0.8)
+	//randomTests(10000, 0.8)
+	//fmt.Println()
 }
