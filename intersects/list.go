@@ -51,6 +51,8 @@ func binIntersect(d, q []uint64, final *[]uint64) {
 	if d[midd] == qval {
 		*final = append(*final, qval)
 		fmt.Printf("Adding: %d\n", qval)
+	} else {
+		midd -= 1
 	}
 
 	dd = d[midd+1:]
