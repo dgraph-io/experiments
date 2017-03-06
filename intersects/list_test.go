@@ -49,7 +49,7 @@ func TestSize(t *testing.T) {
 	sz := 1
 	for i := 0; i < 7; i++ {
 		sz *= 10
-		a := createArray(sz, math.MaxInt64)
+		a := createArray(sz, math.MaxInt32)
 		dl := encodeDelta(a)
 		dd, err := dl.Marshal()
 		require.Nil(t, err)
