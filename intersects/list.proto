@@ -1,0 +1,10 @@
+syntax = "proto3";
+package intersect;
+
+message DeltaList {
+	repeated uint64 uids = 1;
+}
+
+message FixedList {
+	repeated fixed64 uids = 1;
+}

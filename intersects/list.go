@@ -128,3 +128,23 @@ func binIterative(d, q []uint64, final *[]uint64) {
 	//return (*final)[i] < (*final)[j]
 	//})
 }
+
+func encodeDelta(d []uint64) *DeltaList {
+	l := new(DeltaList)
+	if len(d) == 0 {
+		return l
+	}
+	l.Uids = append(l.Uids, d[0])
+	last := d[0]
+	for _, cur := range d[1:] {
+		l.Uids = append(l.Uids, cur-last)
+		last = cur
+	}
+	return l
+}
+
+func encodeFixed(d []uint64) *FixedList {
+	f := new(FixedList)
+	f.Uids = d
+	return f
+}

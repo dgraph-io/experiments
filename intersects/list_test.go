@@ -2,6 +2,7 @@ package intersect
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"sort"
 	"testing"
@@ -41,6 +42,37 @@ func createArray(sz int, limit int64) []uint64 {
 		return a[i] < a[j]
 	})
 	return a
+}
+
+func TestSize(t *testing.T) {
+	rand.Seed(time.Now().UnixNano())
+	sz := 1
+	for i := 0; i < 7; i++ {
+		sz *= 10
+		a := createArray(sz, math.MaxInt64)
+		dl := encodeDelta(a)
+		dd, err := dl.Marshal()
+		require.Nil(t, err)
+
+		fl := encodeFixed(a)
+		fd, err := fl.Marshal()
+		require.Nil(t, err)
+		fmt.Printf("Size=%d Size of delta: %v fixed: %v\n", sz, len(dd), len(fd))
+
+		mi := func(d []uint64) uint64 {
+			var dm uint64
+			for _, e := range d {
+				if dm < e {
+					dm = e
+				}
+			}
+			return dm
+		}
+		dm := mi(dl.Uids)
+		fm := mi(fl.Uids)
+		fmt.Printf("Max delta: %v. Max fixed: %v. Bits delta: %v. Bits fixed: %v\n",
+			dm, fm, math.Log2(float64(dm)), math.Log2(float64(fm)))
+	}
 }
 
 func TestIntersect(t *testing.T) {
