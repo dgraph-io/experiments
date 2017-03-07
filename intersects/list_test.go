@@ -120,6 +120,67 @@ func TestIntersect(t *testing.T) {
 	//require.Equal(t, exp, res3, "binIterative not working")
 }
 
+func BenchmarkMarshal(b *testing.B) {
+	rand.Seed(time.Now().UnixNano())
+	rs := []int{1, 10, 50, 100, 500, 1000, 10000, 100000, 1000000}
+	for _, r := range rs {
+		u := createArray(r, math.MaxInt32)
+
+		var dsize, fsize int
+		b.Run(fmt.Sprintf("delta-%d", r),
+			func(b *testing.B) {
+				var total time.Duration
+				for i := 0; i < b.N; i++ {
+					d := encodeDelta(u, 32)
+					data, err := d.Marshal()
+					if err != nil {
+						b.Fatalf("Error: %v", err)
+					}
+					// Assuming 128 MB per sec. => 128 bytes per micro.
+					dur := time.Duration(len(data) / 128)
+					total += dur
+					time.Sleep(dur * time.Microsecond)
+					if i == 0 {
+						dsize = len(data)
+					}
+
+					var out DeltaList
+					if err := out.Unmarshal(data); err != nil {
+						b.Fatalf("Error: %v", err)
+					}
+				}
+				// fmt.Printf("Total sleep: %v\n", total)
+			})
+
+		b.Run(fmt.Sprintf("fixed-%d", r),
+			func(b *testing.B) {
+				var total time.Duration
+				for i := 0; i < b.N; i++ {
+					d := encodeFixed(u)
+					data, err := d.Marshal()
+					if err != nil {
+						b.Fatalf("Error: %v", err)
+					}
+					dur := time.Duration(len(data) / 128)
+					total += dur
+					// Assuming 128 MB per sec. => 128 bytes per micro.
+					time.Sleep(dur * time.Microsecond)
+
+					if i == 0 {
+						fsize = len(data)
+					}
+					var out FixedList
+					if err := out.Unmarshal(data); err != nil {
+						b.Fatalf("Error: %v", err)
+					}
+				}
+				// fmt.Printf("Total fixed sleep: %v\n", total)
+			})
+		fmt.Printf("SIZE Delta: %v Fixed: %v\n", dsize, fsize)
+		fmt.Println()
+	}
+}
+
 func BenchmarkListIntersect(b *testing.B) {
 	randomTests := func(sz int, overlap float64) {
 		rs := []int{1, 10, 50, 100, 500, 1000, 10000, 100000, 1000000}

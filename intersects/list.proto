@@ -3,7 +3,7 @@ package intersect;
 
 message DeltaList {
 	int32 bucket_size = 1;
-	repeated uint64 buckets = 2;
+	repeated fixed64 buckets = 2;
 	repeated uint64 uids = 3;
 }
 

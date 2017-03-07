@@ -328,3 +328,47 @@ BenchmarkListIntersect/:Bin:size=10000:overlap=0.80:ratio=100:-4    	    1000	  
 BenchmarkListIntersect/:Mer:size=10000:overlap=0.80:ratio=100-4     	    2000	   1038451 ns/op
 BenchmarkListIntersect/:Two:size=10000:overlap=0.80:ratio=100-4     	    2000	    869127 ns/op
 
+
+===
+
+FINAL RESULTS
+-------------
+
+Used fixed encoding for buckets, which improves performance quite a bit. Then adding the delay for network transfer assuming 1Gbps link, we get these results.
+
+BenchmarkMarshal/delta-1-4         	 3000000	       518 ns/op
+BenchmarkMarshal/fixed-1-4         	10000000	       158 ns/op
+SIZE Delta: 18 Fixed: 10
+
+BenchmarkMarshal/delta-10-4        	 1000000	      1478 ns/op
+BenchmarkMarshal/fixed-10-4        	 3000000	       523 ns/op
+SIZE Delta: 53 Fixed: 82
+
+BenchmarkMarshal/delta-50-4        	  200000	      7094 ns/op
+BenchmarkMarshal/fixed-50-4        	   30000	     34509 ns/op
+SIZE Delta: 220 Fixed: 403
+
+BenchmarkMarshal/delta-100-4       	   50000	     29602 ns/op
+BenchmarkMarshal/fixed-100-4       	   20000	     68341 ns/op
+SIZE Delta: 431 Fixed: 803
+
+BenchmarkMarshal/delta-500-4       	   10000	    129306 ns/op
+BenchmarkMarshal/fixed-500-4       	   10000	    117591 ns/op
+SIZE Delta: 1937 Fixed: 4003
+
+BenchmarkMarshal/delta-1000-4      	   10000	    149557 ns/op
+BenchmarkMarshal/fixed-1000-4      	   10000	    148209 ns/op
+SIZE Delta: 3643 Fixed: 8003
+
+BenchmarkMarshal/delta-10000-4     	    2000	   1075089 ns/op
+BenchmarkMarshal/fixed-10000-4     	    2000	   1525542 ns/op
+SIZE Delta: 31814 Fixed: 80004
+
+BenchmarkMarshal/delta-100000-4    	     100	  13833955 ns/op
+BenchmarkMarshal/fixed-100000-4    	     100	  13687168 ns/op
+SIZE Delta: 271115 Fixed: 800004
+
+BenchmarkMarshal/delta-1000000-4   	      20	  73335392 ns/op
+BenchmarkMarshal/fixed-1000000-4   	      20	  97137263 ns/op
+SIZE Delta: 2193434 Fixed: 8000005
+

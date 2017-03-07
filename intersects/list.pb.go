@@ -33,7 +33,7 @@ const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type DeltaList struct {
 	BucketSize int32    `protobuf:"varint,1,opt,name=bucket_size,json=bucketSize,proto3" json:"bucket_size,omitempty"`
-	Buckets    []uint64 `protobuf:"varint,2,rep,packed,name=buckets" json:"buckets,omitempty"`
+	Buckets    []uint64 `protobuf:"fixed64,2,rep,packed,name=buckets" json:"buckets,omitempty"`
 	Uids       []uint64 `protobuf:"varint,3,rep,packed,name=uids" json:"uids,omitempty"`
 }
 
@@ -104,9 +104,32 @@ func (m *DeltaList) MarshalTo(dAtA []byte) (int, error) {
 		i = encodeVarintList(dAtA, i, uint64(m.BucketSize))
 	}
 	if len(m.Buckets) > 0 {
-		dAtA2 := make([]byte, len(m.Buckets)*10)
-		var j1 int
+		dAtA[i] = 0x12
+		i++
+		i = encodeVarintList(dAtA, i, uint64(len(m.Buckets)*8))
 		for _, num := range m.Buckets {
+			dAtA[i] = uint8(num)
+			i++
+			dAtA[i] = uint8(num >> 8)
+			i++
+			dAtA[i] = uint8(num >> 16)
+			i++
+			dAtA[i] = uint8(num >> 24)
+			i++
+			dAtA[i] = uint8(num >> 32)
+			i++
+			dAtA[i] = uint8(num >> 40)
+			i++
+			dAtA[i] = uint8(num >> 48)
+			i++
+			dAtA[i] = uint8(num >> 56)
+			i++
+		}
+	}
+	if len(m.Uids) > 0 {
+		dAtA2 := make([]byte, len(m.Uids)*10)
+		var j1 int
+		for _, num := range m.Uids {
 			for num >= 1<<7 {
 				dAtA2[j1] = uint8(uint64(num)&0x7f | 0x80)
 				num >>= 7
@@ -115,27 +138,10 @@ func (m *DeltaList) MarshalTo(dAtA []byte) (int, error) {
 			dAtA2[j1] = uint8(num)
 			j1++
 		}
-		dAtA[i] = 0x12
+		dAtA[i] = 0x1a
 		i++
 		i = encodeVarintList(dAtA, i, uint64(j1))
 		i += copy(dAtA[i:], dAtA2[:j1])
-	}
-	if len(m.Uids) > 0 {
-		dAtA4 := make([]byte, len(m.Uids)*10)
-		var j3 int
-		for _, num := range m.Uids {
-			for num >= 1<<7 {
-				dAtA4[j3] = uint8(uint64(num)&0x7f | 0x80)
-				num >>= 7
-				j3++
-			}
-			dAtA4[j3] = uint8(num)
-			j3++
-		}
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintList(dAtA, i, uint64(j3))
-		i += copy(dAtA[i:], dAtA4[:j3])
 	}
 	return i, nil
 }
@@ -215,11 +221,7 @@ func (m *DeltaList) Size() (n int) {
 		n += 1 + sovList(uint64(m.BucketSize))
 	}
 	if len(m.Buckets) > 0 {
-		l = 0
-		for _, e := range m.Buckets {
-			l += sovList(uint64(e))
-		}
-		n += 1 + sovList(uint64(l)) + l
+		n += 1 + sovList(uint64(len(m.Buckets)*8)) + len(m.Buckets)*8
 	}
 	if len(m.Uids) > 0 {
 		l = 0
@@ -302,22 +304,20 @@ func (m *DeltaList) Unmarshal(dAtA []byte) error {
 				}
 			}
 		case 2:
-			if wireType == 0 {
+			if wireType == 1 {
 				var v uint64
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return ErrIntOverflowList
-					}
-					if iNdEx >= l {
-						return io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					v |= (uint64(b) & 0x7F) << shift
-					if b < 0x80 {
-						break
-					}
+				if (iNdEx + 8) > l {
+					return io.ErrUnexpectedEOF
 				}
+				iNdEx += 8
+				v = uint64(dAtA[iNdEx-8])
+				v |= uint64(dAtA[iNdEx-7]) << 8
+				v |= uint64(dAtA[iNdEx-6]) << 16
+				v |= uint64(dAtA[iNdEx-5]) << 24
+				v |= uint64(dAtA[iNdEx-4]) << 32
+				v |= uint64(dAtA[iNdEx-3]) << 40
+				v |= uint64(dAtA[iNdEx-2]) << 48
+				v |= uint64(dAtA[iNdEx-1]) << 56
 				m.Buckets = append(m.Buckets, v)
 			} else if wireType == 2 {
 				var packedLen int
@@ -344,20 +344,18 @@ func (m *DeltaList) Unmarshal(dAtA []byte) error {
 				}
 				for iNdEx < postIndex {
 					var v uint64
-					for shift := uint(0); ; shift += 7 {
-						if shift >= 64 {
-							return ErrIntOverflowList
-						}
-						if iNdEx >= l {
-							return io.ErrUnexpectedEOF
-						}
-						b := dAtA[iNdEx]
-						iNdEx++
-						v |= (uint64(b) & 0x7F) << shift
-						if b < 0x80 {
-							break
-						}
+					if (iNdEx + 8) > l {
+						return io.ErrUnexpectedEOF
 					}
+					iNdEx += 8
+					v = uint64(dAtA[iNdEx-8])
+					v |= uint64(dAtA[iNdEx-7]) << 8
+					v |= uint64(dAtA[iNdEx-6]) << 16
+					v |= uint64(dAtA[iNdEx-5]) << 24
+					v |= uint64(dAtA[iNdEx-4]) << 32
+					v |= uint64(dAtA[iNdEx-3]) << 40
+					v |= uint64(dAtA[iNdEx-2]) << 48
+					v |= uint64(dAtA[iNdEx-1]) << 56
 					m.Buckets = append(m.Buckets, v)
 				}
 			} else {
@@ -662,16 +660,16 @@ var (
 func init() { proto.RegisterFile("list.proto", fileDescriptorList) }
 
 var fileDescriptorList = []byte{
-	// 162 bytes of a gzipped FileDescriptorProto
+	// 163 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0xca, 0xc9, 0x2c, 0x2e,
 	0xd1, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0xcc, 0xcc, 0x2b, 0x49, 0x2d, 0x2a, 0x4e, 0x4d,
 	0x2e, 0x51, 0x8a, 0xe2, 0xe2, 0x74, 0x49, 0xcd, 0x29, 0x49, 0xf4, 0xc9, 0x2c, 0x2e, 0x11, 0x92,
 	0xe7, 0xe2, 0x4e, 0x2a, 0x4d, 0xce, 0x4e, 0x2d, 0x89, 0x2f, 0xce, 0xac, 0x4a, 0x95, 0x60, 0x54,
 	0x60, 0xd4, 0x60, 0x0d, 0xe2, 0x82, 0x08, 0x05, 0x67, 0x56, 0xa5, 0x0a, 0x49, 0x70, 0xb1, 0x43,
-	0x78, 0xc5, 0x12, 0x4c, 0x0a, 0xcc, 0x1a, 0x2c, 0x41, 0x30, 0xae, 0x90, 0x10, 0x17, 0x4b, 0x69,
-	0x66, 0x4a, 0xb1, 0x04, 0x33, 0x58, 0x18, 0xcc, 0x56, 0x92, 0xe7, 0xe2, 0x74, 0xcb, 0xac, 0x48,
-	0x4d, 0x01, 0x9b, 0x0d, 0x53, 0xc0, 0xa8, 0xc0, 0xac, 0xc1, 0x06, 0x51, 0xe0, 0x24, 0x70, 0xe2,
-	0x91, 0x1c, 0xe3, 0x85, 0x47, 0x72, 0x8c, 0x0f, 0x1e, 0xc9, 0x31, 0xce, 0x78, 0x2c, 0xc7, 0x90,
-	0xc4, 0x06, 0x76, 0xa0, 0x31, 0x20, 0x00, 0x00, 0xff, 0xff, 0x6b, 0x82, 0x3c, 0x10, 0xae, 0x00,
-	0x00, 0x00,
+	0x78, 0xc5, 0x12, 0x4c, 0x0a, 0xcc, 0x1a, 0x6c, 0x41, 0x30, 0xae, 0x90, 0x10, 0x17, 0x4b, 0x69,
+	0x66, 0x4a, 0xb1, 0x04, 0xb3, 0x02, 0xb3, 0x06, 0x4b, 0x10, 0x98, 0xad, 0x24, 0xcf, 0xc5, 0xe9,
+	0x96, 0x59, 0x91, 0x9a, 0x02, 0x36, 0x1b, 0xa6, 0x80, 0x11, 0xac, 0x0f, 0xcc, 0x76, 0x12, 0x38,
+	0xf1, 0x48, 0x8e, 0xf1, 0xc2, 0x23, 0x39, 0xc6, 0x07, 0x8f, 0xe4, 0x18, 0x67, 0x3c, 0x96, 0x63,
+	0x48, 0x62, 0x03, 0x3b, 0xd0, 0x18, 0x10, 0x00, 0x00, 0xff, 0xff, 0x7b, 0x59, 0x44, 0xd8, 0xae,
+	0x00, 0x00, 0x00,
 }
