@@ -126,6 +126,7 @@ BenchmarkListIntersect/:Two:size=10000:overlap=0.00:ratio=50-4      	    2000	  
 
 ====================
 Using delta encoding: Merge below 500, binary >= 500 ratio.
+
 BenchmarkListIntersect/:Bin:size=10:overlap=0.00:ratio=1:-4         	 5000000	       241 ns/op
 BenchmarkListIntersect/:Mer:size=10:overlap=0.00:ratio=1-4          	30000000	        51.7 ns/op
 BenchmarkListIntersect/:Two:size=10:overlap=0.00:ratio=1-4          	30000000	        54.6 ns/op
