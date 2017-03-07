@@ -78,12 +78,12 @@ func TestSize(t *testing.T) {
 
 func TestTwoLevelIntersect(t *testing.T) {
 	rand.Seed(time.Now().UnixNano())
-	a := createArray(50, 100)
+	a := createArray(100, 1000)
 	da := encodeDelta(a, 3)
-	b := createArray(80, 100)
+	b := createArray(200, 1000)
 	db := encodeDelta(b, 3)
 	fmt.Println("a=", da.Buckets, da.Uids)
-	fmt.Println(db.Buckets, db.Uids)
+	fmt.Println("b=", db.Buckets, db.Uids)
 
 	fmt.Printf("a=%v\nb=%v\n", a, b)
 	final := make([]uint64, 0, 100)
@@ -92,6 +92,10 @@ func TestTwoLevelIntersect(t *testing.T) {
 	exp := make([]uint64, 0, 100)
 	mergeIntersect(a, b, &exp)
 	fmt.Printf("exp=%v\n", exp)
+	require.Equal(t, exp, final)
+
+	final = final[:0]
+	BinDelta(da, db, &final)
 	require.Equal(t, exp, final)
 }
 
@@ -106,8 +110,8 @@ func TestIntersect(t *testing.T) {
 	res2 := make([]uint64, 0, 100)
 	binIntersect(a, b, &res2)
 
-	res3 := make([]uint64, 0, 100)
-	binIterative(a, b, &res3)
+	//res3 := make([]uint64, 0, 100)
+	//binIterative(a, b, &res3)
 
 	exp := intersect(a, b)
 
@@ -128,7 +132,9 @@ func BenchmarkListIntersect(b *testing.B) {
 			limit := int64(float64(sz2) / overlap)
 
 			u1 := createArray(sz, limit)
+			d1 := encodeDelta(u1, 32)
 			u2 := createArray(sz2, limit)
+			d2 := encodeDelta(u2, 32)
 			result := make([]uint64, 0, sz)
 
 			b.Run(fmt.Sprintf(":Bin:size=%d:overlap=%.2f:ratio=%d:", sz, overlap, r),
@@ -138,17 +144,24 @@ func BenchmarkListIntersect(b *testing.B) {
 						result = result[:0]
 					}
 				})
-			//b.Run(fmt.Sprintf(":Itr:size=%d:ratio=%d:overlap=%.2f:", r, sz, overlap),
-			//func(b *testing.B) {
-			//for k := 0; k < b.N; k++ {
-			//binIterative(u1, u2, &result)
-			//result = result[:0]
-			//}
-			//})
 			b.Run(fmt.Sprintf(":Mer:size=%d:overlap=%.2f:ratio=%d", sz, overlap, r),
 				func(b *testing.B) {
 					for k := 0; k < b.N; k++ {
 						mergeIntersect(u1, u2, &result)
+						result = result[:0]
+					}
+				})
+
+			b.Run(fmt.Sprintf(":Two:size=%d:overlap=%.2f:ratio=%d", sz, overlap, r),
+				func(b *testing.B) {
+					var f func(a, b *DeltaList, final *[]uint64)
+					if r < 500 {
+						f = mergeDeltaIntersect
+					} else {
+						f = BinDelta
+					}
+					for k := 0; k < b.N; k++ {
+						f(d1, d2, &result)
 						result = result[:0]
 					}
 				})

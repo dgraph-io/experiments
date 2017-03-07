@@ -1,9 +1,6 @@
 package intersect
 
-import (
-	"fmt"
-	"sort"
-)
+import "sort"
 
 func mergeIntersect(a, b []uint64, final *[]uint64) {
 	ma, mb := len(a), len(b)
@@ -64,7 +61,6 @@ OUTER:
 			if end > numbu {
 				end = numbu
 			}
-			fmt.Printf("eb=%v endbucket=%v\n", eb, endBucket)
 		}
 		if ea > endBucket {
 			break
@@ -72,11 +68,9 @@ OUTER:
 
 		// Got the right bucket.
 		for {
-			fmt.Printf("ea=%d eb=%d endbucket=%d\n", ea, eb, endBucket)
 			if eb >= ea {
 				if eb == ea {
 					*final = append(*final, ea)
-					fmt.Printf("OUT=%v\n", ea)
 				}
 				break
 			}
@@ -88,6 +82,58 @@ OUTER:
 		}
 		if bidx == numbu {
 			break OUTER
+		}
+	}
+}
+
+func BinDelta(a, b *DeltaList, final *[]uint64) {
+	if len(a.Uids) > len(b.Uids) {
+		panic("this is wrong")
+	}
+	if len(a.Uids) == 0 || len(b.Uids) == 0 {
+		return
+	}
+
+	var ea, eb uint64
+	eb = b.Uids[0]
+	var bidx int
+	bsize := int(b.BucketSize)
+	bb := b.Buckets
+	var bi int
+	end := len(b.Uids)
+
+	for _, da := range a.Uids {
+		ea += da
+		if ea > bb[bidx] {
+			bidx = sort.Search(len(bb), func(i int) bool {
+				return bb[i] >= ea
+			})
+			if bidx == len(bb) {
+				return
+			}
+			bi = bsize * bidx
+			if bidx > 0 {
+				eb = b.Buckets[bidx-1] + b.Uids[bi]
+			}
+			end = bsize * (bidx + 1)
+			if end > len(b.Uids) {
+				end = len(b.Uids)
+			}
+		}
+
+		// LINEAR search here.
+		for {
+			if eb >= ea {
+				if eb == ea {
+					*final = append(*final, ea)
+				}
+				break
+			}
+			bi++
+			if bi >= end {
+				break
+			}
+			eb += b.Uids[bi]
 		}
 	}
 }
@@ -149,54 +195,6 @@ func binIntersect(d, q []uint64, final *[]uint64) {
 	} else {
 		binIntersect(qq, dd, final)
 	}
-}
-
-type S struct {
-	d []uint64
-	q []uint64
-}
-
-func binIterative(d, q []uint64, final *[]uint64) {
-	stack := make([]S, 0, 100)
-	stack = append(stack, S{d, q})
-
-	for len(stack) > 0 {
-		l := len(stack) - 1
-		s := stack[l]
-		stack = stack[:l] // pop
-
-		if len(s.d) > len(s.q) {
-			d = s.d
-			q = s.q
-		} else {
-			d = s.q
-			q = s.d
-		}
-
-		if len(d) == 0 || len(q) == 0 {
-			continue
-		}
-
-		midq := len(q) / 2
-		qval := q[midq]
-		midd := sort.Search(len(d), func(i int) bool {
-			return d[i] >= qval
-		})
-		stack = append(stack, S{d[0:midd], q[0:midq]})
-
-		if midd >= len(d) {
-			continue
-		}
-		if d[midd] == qval {
-			*final = append(*final, qval)
-		} else {
-			midd -= 1
-		}
-		stack = append(stack, S{d[midd+1:], q[midq+1:]})
-	}
-	//sort.Slice(*final, func(i, j int) bool {
-	//return (*final)[i] < (*final)[j]
-	//})
 }
 
 func encodeDelta(d []uint64, bucketSize int) *DeltaList {
