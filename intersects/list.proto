@@ -2,7 +2,9 @@ syntax = "proto3";
 package intersect;
 
 message DeltaList {
-	repeated uint64 uids = 1;
+	int32 bucket_size = 1;
+	repeated uint64 buckets = 2;
+	repeated uint64 uids = 3;
 }
 
 message FixedList {

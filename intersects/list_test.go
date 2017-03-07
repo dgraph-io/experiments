@@ -47,10 +47,10 @@ func createArray(sz int, limit int64) []uint64 {
 func TestSize(t *testing.T) {
 	rand.Seed(time.Now().UnixNano())
 	sz := 1
-	for i := 0; i < 7; i++ {
+	for i := 0; i < 5; i++ {
 		sz *= 10
 		a := createArray(sz, math.MaxInt32)
-		dl := encodeDelta(a)
+		dl := encodeDelta(a, 32)
 		dd, err := dl.Marshal()
 		require.Nil(t, err)
 
@@ -72,7 +72,27 @@ func TestSize(t *testing.T) {
 		fm := mi(fl.Uids)
 		fmt.Printf("Max delta: %v. Max fixed: %v. Bits delta: %v. Bits fixed: %v\n",
 			dm, fm, math.Log2(float64(dm)), math.Log2(float64(fm)))
+		fmt.Println()
 	}
+}
+
+func TestTwoLevelIntersect(t *testing.T) {
+	rand.Seed(time.Now().UnixNano())
+	a := createArray(50, 100)
+	da := encodeDelta(a, 3)
+	b := createArray(80, 100)
+	db := encodeDelta(b, 3)
+	fmt.Println("a=", da.Buckets, da.Uids)
+	fmt.Println(db.Buckets, db.Uids)
+
+	fmt.Printf("a=%v\nb=%v\n", a, b)
+	final := make([]uint64, 0, 100)
+	mergeDeltaIntersect(da, db, &final)
+
+	exp := make([]uint64, 0, 100)
+	mergeIntersect(a, b, &exp)
+	fmt.Printf("exp=%v\n", exp)
+	require.Equal(t, exp, final)
 }
 
 func TestIntersect(t *testing.T) {
