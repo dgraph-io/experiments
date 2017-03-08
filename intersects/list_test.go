@@ -14,11 +14,10 @@ import (
 
 func TestUIDListIntersect2(t *testing.T) {
 	u := []uint64{1, 2, 3}
-	v := []uint64{1, 2, 3, 4, 5}
+	v := []uint64{3, 5}
 	res := make([]uint64, 0, 3)
 	BinIntersect(u, v, &res)
-	require.Equal(t, []uint64{1, 2, 3}, res)
-	require.Equal(t, []uint64{1, 2, 3, 4, 5}, v)
+	require.Equal(t, []uint64{3}, res)
 }
 
 func intersect(a, b []uint64) []uint64 {
