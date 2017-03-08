@@ -88,25 +88,29 @@ func twoLevelBinary(a, b *DeltaList, final *[]uint64) {
 	bsize := int(b.BucketSize)
 	var ai, bi int
 	end := len(b.Uids)
-	numb := len(b.Buckets)
+	//numb := len(b.Buckets)
 	endBucket := b.Buckets[0]
+	bucks := b.Buckets
+	lastBuck := 0
 
 	for ai < len(a.Uids) {
 		ea = a.Uids[ai]
 
 		if ea > endBucket {
-			bucketIdx = sort.Search(numb, func(i int) bool {
-				return b.Buckets[i] >= ea
+			bucketIdx = sort.Search(len(bucks), func(i int) bool {
+				return bucks[i] >= ea
 			})
-			if bucketIdx == numb {
+			if bucketIdx == len(bucks) {
 				return
 			}
-			endBucket = b.Buckets[bucketIdx]
-			bi = bsize * bucketIdx
-			end = bsize * (bucketIdx + 1)
-			if bucketIdx == numb-1 {
+			endBucket = bucks[bucketIdx]
+			bi = bsize * (lastBuck + bucketIdx)
+			end = bsize * (lastBuck + bucketIdx + 1)
+			if bucketIdx == len(bucks)-1 {
 				end = len(b.Uids)
 			}
+			lastBuck += bucketIdx
+			bucks = bucks[bucketIdx:]
 		}
 		if ea > endBucket {
 			break
@@ -186,6 +190,18 @@ func binIntersect(d, q []uint64, final *[]uint64) {
 	} else {
 		binIntersect(qq, dd, final)
 	}
+}
+
+func createBucketList(d []uint64, bucketSize int) []uint64 {
+	buckets := make([]uint64, 0, len(d)/bucketSize+2)
+	for i := bucketSize - 1; i < len(d); i += bucketSize {
+		buckets = append(buckets, d[i])
+	}
+	last := d[len(d)-1]
+	if len(buckets) == 0 || buckets[len(buckets)-1] != last {
+		buckets = append(buckets, last)
+	}
+	return buckets
 }
 
 func encodeDelta(d []uint64, bucketSize int) *DeltaList {

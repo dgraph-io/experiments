@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dgraph-io/dgraph/task"
 	"github.com/stretchr/testify/require"
 )
 
@@ -131,7 +130,7 @@ func TestIntersect(t *testing.T) {
 
 func BenchmarkMarshal(b *testing.B) {
 	rand.Seed(time.Now().UnixNano())
-	rs := []int{1, 10, 50, 100, 500, 1000, 10000, 100000, 1000000}
+	rs := []int{ /*1, 10, 50, 100,*/ 500, 1000, 10000, 100000, 1000000}
 	for _, r := range rs {
 		u := createArray(r, math.MaxInt32)
 
@@ -192,11 +191,11 @@ func BenchmarkMarshal(b *testing.B) {
 
 func BenchmarkListIntersect(b *testing.B) {
 	randomTests := func(sz int, overlap float64) {
-		rs := []int{1, 10, 50, 100, 500, 1000, 10000, 100000, 1000000}
+		rs := []int{ /*1, 10, 50, 100,*/ 500, 1000, 10000, 100000, 1000000}
 
 		for _, r := range rs {
 			sz2 := sz * r
-			if sz2 > 1000000 {
+			if sz2 > 10000000 {
 				break
 			}
 			limit := int64(float64(sz2) / overlap)
@@ -207,20 +206,21 @@ func BenchmarkListIntersect(b *testing.B) {
 			d2 := encodeDelta(u2, 32)
 			result := make([]uint64, 0, sz)
 
-			u := &task.List{u1}
-			v := &task.List{u2}
-			ucopy := make([]uint64, len(u1), len(u1))
-			copy(ucopy, u1)
+			/*
+				u := &task.List{u1}
+				v := &task.List{u2}
+				ucopy := make([]uint64, len(u1), len(u1))
+				copy(ucopy, u1)
 
-			b.Run(fmt.Sprintf(":Cur:size=%d:overlap=%.2f:ratio=%d:", sz, overlap, r),
-				func(b *testing.B) {
-					for k := 0; k < b.N; k++ {
-						//u.Uids = u.Uids[:sz]
-						//copy(u.Uids, ucopy)
-						IntersectWith(u, v)
-					}
-				})
-
+					b.Run(fmt.Sprintf(":Cur:size=%d:overlap=%.2f:ratio=%d:", sz, overlap, r),
+						func(b *testing.B) {
+							for k := 0; k < b.N; k++ {
+								//u.Uids = u.Uids[:sz]
+								//copy(u.Uids, ucopy)
+								IntersectWith(u, v)
+							}
+						})
+			*/
 			b.Run(fmt.Sprintf(":Bin:size=%d:overlap=%.2f:ratio=%d:", sz, overlap, r),
 				func(b *testing.B) {
 					for k := 0; k < b.N; k++ {
@@ -228,14 +228,15 @@ func BenchmarkListIntersect(b *testing.B) {
 						result = result[:0]
 					}
 				})
-			b.Run(fmt.Sprintf(":Mer:size=%d:overlap=%.2f:ratio=%d", sz, overlap, r),
+			/*
+				b.Run(fmt.Sprintf(":Mer:size=%d:overlap=%.2f:ratio=%d", sz, overlap, r),
 				func(b *testing.B) {
 					for k := 0; k < b.N; k++ {
 						mergeIntersect(u1, u2, &result)
 						result = result[:0]
 					}
 				})
-
+			*/
 			b.Run(fmt.Sprintf(":Two:size=%d:overlap=%.2f:ratio=%d", sz, overlap, r),
 				func(b *testing.B) {
 					var f func(a, b *DeltaList, final *[]uint64)
@@ -245,6 +246,8 @@ func BenchmarkListIntersect(b *testing.B) {
 						f = twoLevelBinary
 					}
 					for k := 0; k < b.N; k++ {
+						//_ = createBucketList(u1, 32)
+						createBucketList(u2, 32)
 						f(d1, d2, &result)
 						result = result[:0]
 					}
@@ -260,8 +263,8 @@ func BenchmarkListIntersect(b *testing.B) {
 	// Overlap has no effect on Bin numbers.
 	overlaps := []float64{0.00001, 0.8}
 	for _, overlap := range overlaps {
-		randomTests(10, overlap)
-		randomTests(100, overlap)
+		//	randomTests(10, overlap)
+		//	randomTests(100, overlap)
 		randomTests(1000, overlap)
 		randomTests(10000, overlap)
 		fmt.Println()
