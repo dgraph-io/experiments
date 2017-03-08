@@ -1,0 +1,252 @@
+Cur: Stands for current implementation (with Jump Intersects included).
+
+BenchmarkListIntersect/:Cur:size=10:overlap=0.00:ratio=1:-4         	30000000	        48.7 ns/op
+BenchmarkListIntersect/:Bin:size=10:overlap=0.00:ratio=1:-4         	 5000000	       255 ns/op
+BenchmarkListIntersect/:Mer:size=10:overlap=0.00:ratio=1-4          	50000000	        47.4 ns/op
+BenchmarkListIntersect/:Two:size=10:overlap=0.00:ratio=1-4          	20000000	        54.4 ns/op
+
+BenchmarkListIntersect/:Cur:size=10:overlap=0.00:ratio=10:-4        	10000000	       174 ns/op
+BenchmarkListIntersect/:Bin:size=10:overlap=0.00:ratio=10:-4        	 3000000	       524 ns/op
+BenchmarkListIntersect/:Mer:size=10:overlap=0.00:ratio=10-4         	10000000	       125 ns/op
+BenchmarkListIntersect/:Two:size=10:overlap=0.00:ratio=10-4         	10000000	       131 ns/op
+
+BenchmarkListIntersect/:Cur:size=10:overlap=0.00:ratio=50:-4        	 3000000	       421 ns/op
+BenchmarkListIntersect/:Bin:size=10:overlap=0.00:ratio=50:-4        	 3000000	       479 ns/op
+BenchmarkListIntersect/:Mer:size=10:overlap=0.00:ratio=50-4         	 3000000	       474 ns/op
+BenchmarkListIntersect/:Two:size=10:overlap=0.00:ratio=50-4         	 5000000	       253 ns/op
+
+BenchmarkListIntersect/:Cur:size=10:overlap=0.00:ratio=100:-4       	 5000000	       269 ns/op
+BenchmarkListIntersect/:Bin:size=10:overlap=0.00:ratio=100:-4       	 3000000	       477 ns/op
+BenchmarkListIntersect/:Mer:size=10:overlap=0.00:ratio=100-4        	 2000000	       653 ns/op
+BenchmarkListIntersect/:Two:size=10:overlap=0.00:ratio=100-4        	 5000000	       242 ns/op
+
+BenchmarkListIntersect/:Cur:size=10:overlap=0.00:ratio=500:-4       	 3000000	       515 ns/op
+BenchmarkListIntersect/:Bin:size=10:overlap=0.00:ratio=500:-4       	 3000000	       574 ns/op
+BenchmarkListIntersect/:Mer:size=10:overlap=0.00:ratio=500-4        	  500000	      2647 ns/op
+BenchmarkListIntersect/:Two:size=10:overlap=0.00:ratio=500-4        	 3000000	       566 ns/op
+
+BenchmarkListIntersect/:Cur:size=10:overlap=0.00:ratio=1000:-4      	 3000000	       587 ns/op
+BenchmarkListIntersect/:Bin:size=10:overlap=0.00:ratio=1000:-4      	 2000000	       620 ns/op
+BenchmarkListIntersect/:Mer:size=10:overlap=0.00:ratio=1000-4       	  300000	      5809 ns/op
+BenchmarkListIntersect/:Two:size=10:overlap=0.00:ratio=1000-4       	 2000000	       700 ns/op
+
+BenchmarkListIntersect/:Cur:size=10:overlap=0.00:ratio=10000:-4     	 2000000	       710 ns/op
+BenchmarkListIntersect/:Bin:size=10:overlap=0.00:ratio=10000:-4     	 2000000	       753 ns/op
+BenchmarkListIntersect/:Mer:size=10:overlap=0.00:ratio=10000-4      	   30000	     62053 ns/op
+BenchmarkListIntersect/:Two:size=10:overlap=0.00:ratio=10000-4      	 2000000	       765 ns/op
+
+BenchmarkListIntersect/:Cur:size=10:overlap=0.00:ratio=100000:-4    	 2000000	       795 ns/op
+BenchmarkListIntersect/:Bin:size=10:overlap=0.00:ratio=100000:-4    	 2000000	       831 ns/op
+BenchmarkListIntersect/:Mer:size=10:overlap=0.00:ratio=100000-4     	    2000	    675488 ns/op
+BenchmarkListIntersect/:Two:size=10:overlap=0.00:ratio=100000-4     	 2000000	       868 ns/op
+
+BenchmarkListIntersect/:Cur:size=100:overlap=0.00:ratio=1:-4        	 5000000	       357 ns/op
+BenchmarkListIntersect/:Bin:size=100:overlap=0.00:ratio=1:-4        	 1000000	      1841 ns/op
+BenchmarkListIntersect/:Mer:size=100:overlap=0.00:ratio=1-4         	 5000000	       307 ns/op
+BenchmarkListIntersect/:Two:size=100:overlap=0.00:ratio=1-4         	 5000000	       366 ns/op
+
+BenchmarkListIntersect/:Cur:size=100:overlap=0.00:ratio=10:-4       	 1000000	      1163 ns/op
+BenchmarkListIntersect/:Bin:size=100:overlap=0.00:ratio=10:-4       	  500000	      3301 ns/op
+BenchmarkListIntersect/:Mer:size=100:overlap=0.00:ratio=10-4        	 1000000	      1051 ns/op
+BenchmarkListIntersect/:Two:size=100:overlap=0.00:ratio=10-4        	 1000000	      1139 ns/op
+
+BenchmarkListIntersect/:Cur:size=100:overlap=0.00:ratio=50:-4       	  300000	      4412 ns/op
+BenchmarkListIntersect/:Bin:size=100:overlap=0.00:ratio=50:-4       	  300000	      4349 ns/op
+BenchmarkListIntersect/:Mer:size=100:overlap=0.00:ratio=50-4        	  300000	      4259 ns/op
+BenchmarkListIntersect/:Two:size=100:overlap=0.00:ratio=50-4        	 1000000	      2115 ns/op
+
+BenchmarkListIntersect/:Cur:size=100:overlap=0.00:ratio=100:-4      	  500000	      2813 ns/op
+BenchmarkListIntersect/:Bin:size=100:overlap=0.00:ratio=100:-4      	  300000	      4690 ns/op
+BenchmarkListIntersect/:Mer:size=100:overlap=0.00:ratio=100-4       	  200000	      7185 ns/op
+BenchmarkListIntersect/:Two:size=100:overlap=0.00:ratio=100-4       	  500000	      2870 ns/op
+
+BenchmarkListIntersect/:Cur:size=100:overlap=0.00:ratio=500:-4      	  200000	      9337 ns/op
+BenchmarkListIntersect/:Bin:size=100:overlap=0.00:ratio=500:-4      	  200000	      5940 ns/op
+BenchmarkListIntersect/:Mer:size=100:overlap=0.00:ratio=500-4       	   50000	     29870 ns/op
+BenchmarkListIntersect/:Two:size=100:overlap=0.00:ratio=500-4       	  200000	      8544 ns/op
+
+BenchmarkListIntersect/:Cur:size=100:overlap=0.00:ratio=1000:-4     	  200000	     10448 ns/op
+BenchmarkListIntersect/:Bin:size=100:overlap=0.00:ratio=1000:-4     	  200000	      6700 ns/op
+BenchmarkListIntersect/:Mer:size=100:overlap=0.00:ratio=1000-4      	   30000	     58755 ns/op
+BenchmarkListIntersect/:Two:size=100:overlap=0.00:ratio=1000-4      	  200000	      9265 ns/op
+
+BenchmarkListIntersect/:Cur:size=100:overlap=0.00:ratio=10000:-4    	  100000	     13770 ns/op
+BenchmarkListIntersect/:Bin:size=100:overlap=0.00:ratio=10000:-4    	  200000	      9160 ns/op
+BenchmarkListIntersect/:Mer:size=100:overlap=0.00:ratio=10000-4     	    2000	    631565 ns/op
+BenchmarkListIntersect/:Two:size=100:overlap=0.00:ratio=10000-4     	  100000	     12642 ns/op
+
+BenchmarkListIntersect/:Cur:size=1000:overlap=0.00:ratio=1:-4       	  300000	      3729 ns/op
+BenchmarkListIntersect/:Bin:size=1000:overlap=0.00:ratio=1:-4       	  100000	     21294 ns/op
+BenchmarkListIntersect/:Mer:size=1000:overlap=0.00:ratio=1-4        	  500000	      3094 ns/op
+BenchmarkListIntersect/:Two:size=1000:overlap=0.00:ratio=1-4        	  300000	      4141 ns/op
+
+BenchmarkListIntersect/:Cur:size=1000:overlap=0.00:ratio=10:-4      	  100000	     18360 ns/op
+BenchmarkListIntersect/:Bin:size=1000:overlap=0.00:ratio=10:-4      	   30000	     58009 ns/op
+BenchmarkListIntersect/:Mer:size=1000:overlap=0.00:ratio=10-4       	  100000	     17781 ns/op
+BenchmarkListIntersect/:Two:size=1000:overlap=0.00:ratio=10-4       	  100000	     17596 ns/op
+
+BenchmarkListIntersect/:Cur:size=1000:overlap=0.00:ratio=50:-4      	   30000	     46997 ns/op
+BenchmarkListIntersect/:Bin:size=1000:overlap=0.00:ratio=50:-4      	   10000	    102552 ns/op
+BenchmarkListIntersect/:Mer:size=1000:overlap=0.00:ratio=50-4       	   30000	     49601 ns/op
+BenchmarkListIntersect/:Two:size=1000:overlap=0.00:ratio=50-4       	   50000	     35110 ns/op
+
+BenchmarkListIntersect/:Cur:size=1000:overlap=0.00:ratio=100:-4     	   30000	     52921 ns/op
+BenchmarkListIntersect/:Bin:size=1000:overlap=0.00:ratio=100:-4     	   10000	    108269 ns/op
+BenchmarkListIntersect/:Mer:size=1000:overlap=0.00:ratio=100-4      	   20000	     71958 ns/op
+BenchmarkListIntersect/:Two:size=1000:overlap=0.00:ratio=100-4      	   30000	     41551 ns/op
+
+BenchmarkListIntersect/:Cur:size=1000:overlap=0.00:ratio=500:-4     	   10000	    202424 ns/op
+BenchmarkListIntersect/:Bin:size=1000:overlap=0.00:ratio=500:-4     	   10000	    148747 ns/op
+BenchmarkListIntersect/:Mer:size=1000:overlap=0.00:ratio=500-4      	    5000	    332176 ns/op
+BenchmarkListIntersect/:Two:size=1000:overlap=0.00:ratio=500-4      	   10000	    155668 ns/op
+
+BenchmarkListIntersect/:Cur:size=1000:overlap=0.00:ratio=1000:-4    	    5000	    223201 ns/op
+BenchmarkListIntersect/:Bin:size=1000:overlap=0.00:ratio=1000:-4    	   10000	    178347 ns/op
+BenchmarkListIntersect/:Mer:size=1000:overlap=0.00:ratio=1000-4     	    2000	    666964 ns/op
+BenchmarkListIntersect/:Two:size=1000:overlap=0.00:ratio=1000-4     	   10000	    173649 ns/op
+
+BenchmarkListIntersect/:Cur:size=10000:overlap=0.00:ratio=1:-4      	   10000	    114321 ns/op
+BenchmarkListIntersect/:Bin:size=10000:overlap=0.00:ratio=1:-4      	    3000	    374098 ns/op
+BenchmarkListIntersect/:Mer:size=10000:overlap=0.00:ratio=1-4       	   10000	    106417 ns/op
+BenchmarkListIntersect/:Two:size=10000:overlap=0.00:ratio=1-4       	   10000	    114886 ns/op
+
+BenchmarkListIntersect/:Cur:size=10000:overlap=0.00:ratio=10:-4     	    5000	    220409 ns/op
+BenchmarkListIntersect/:Bin:size=10000:overlap=0.00:ratio=10:-4     	    2000	    740616 ns/op
+BenchmarkListIntersect/:Mer:size=10000:overlap=0.00:ratio=10-4      	   10000	    208724 ns/op
+BenchmarkListIntersect/:Two:size=10000:overlap=0.00:ratio=10-4      	   10000	    230822 ns/op
+
+BenchmarkListIntersect/:Cur:size=10000:overlap=0.00:ratio=50:-4     	    3000	    480845 ns/op
+BenchmarkListIntersect/:Bin:size=10000:overlap=0.00:ratio=50:-4     	    1000	   1202124 ns/op
+BenchmarkListIntersect/:Mer:size=10000:overlap=0.00:ratio=50-4      	    3000	    476625 ns/op
+BenchmarkListIntersect/:Two:size=10000:overlap=0.00:ratio=50-4      	    3000	    453747 ns/op
+
+BenchmarkListIntersect/:Cur:size=10000:overlap=0.00:ratio=100:-4    	    2000	    764228 ns/op
+BenchmarkListIntersect/:Bin:size=10000:overlap=0.00:ratio=100:-4    	    1000	   1584584 ns/op
+BenchmarkListIntersect/:Mer:size=10000:overlap=0.00:ratio=100-4     	    2000	    813727 ns/op
+BenchmarkListIntersect/:Two:size=10000:overlap=0.00:ratio=100-4     	    2000	    736509 ns/op
+
+
+BenchmarkListIntersect/:Cur:size=10:overlap=0.80:ratio=1:-4         	50000000	        29.3 ns/op
+BenchmarkListIntersect/:Bin:size=10:overlap=0.80:ratio=1:-4         	10000000	       227 ns/op
+BenchmarkListIntersect/:Mer:size=10:overlap=0.80:ratio=1-4          	50000000	        25.9 ns/op
+BenchmarkListIntersect/:Two:size=10:overlap=0.80:ratio=1-4          	30000000	        44.7 ns/op
+
+BenchmarkListIntersect/:Cur:size=10:overlap=0.80:ratio=10:-4        	20000000	        92.6 ns/op
+BenchmarkListIntersect/:Bin:size=10:overlap=0.80:ratio=10:-4        	 5000000	       338 ns/op
+BenchmarkListIntersect/:Mer:size=10:overlap=0.80:ratio=10-4         	20000000	        93.4 ns/op
+BenchmarkListIntersect/:Two:size=10:overlap=0.80:ratio=10-4         	10000000	       144 ns/op
+
+BenchmarkListIntersect/:Cur:size=10:overlap=0.80:ratio=50:-4        	 5000000	       283 ns/op
+BenchmarkListIntersect/:Bin:size=10:overlap=0.80:ratio=50:-4        	 3000000	       437 ns/op
+BenchmarkListIntersect/:Mer:size=10:overlap=0.80:ratio=50-4         	 5000000	       267 ns/op
+BenchmarkListIntersect/:Two:size=10:overlap=0.80:ratio=50-4         	10000000	       147 ns/op
+
+BenchmarkListIntersect/:Cur:size=10:overlap=0.80:ratio=100:-4       	10000000	       217 ns/op
+BenchmarkListIntersect/:Bin:size=10:overlap=0.80:ratio=100:-4       	 3000000	       466 ns/op
+BenchmarkListIntersect/:Mer:size=10:overlap=0.80:ratio=100-4        	 2000000	       674 ns/op
+BenchmarkListIntersect/:Two:size=10:overlap=0.80:ratio=100-4        	 5000000	       317 ns/op
+
+BenchmarkListIntersect/:Cur:size=10:overlap=0.80:ratio=500:-4       	 3000000	       488 ns/op
+BenchmarkListIntersect/:Bin:size=10:overlap=0.80:ratio=500:-4       	 3000000	       530 ns/op
+BenchmarkListIntersect/:Mer:size=10:overlap=0.80:ratio=500-4        	  500000	      2741 ns/op
+BenchmarkListIntersect/:Two:size=10:overlap=0.80:ratio=500-4        	 3000000	       541 ns/op
+
+BenchmarkListIntersect/:Cur:size=10:overlap=0.80:ratio=1000:-4      	 3000000	       585 ns/op
+BenchmarkListIntersect/:Bin:size=10:overlap=0.80:ratio=1000:-4      	 3000000	       591 ns/op
+BenchmarkListIntersect/:Mer:size=10:overlap=0.80:ratio=1000-4       	  300000	      4668 ns/op
+BenchmarkListIntersect/:Two:size=10:overlap=0.80:ratio=1000-4       	 3000000	       572 ns/op
+
+BenchmarkListIntersect/:Cur:size=10:overlap=0.80:ratio=10000:-4     	 2000000	       655 ns/op
+BenchmarkListIntersect/:Bin:size=10:overlap=0.80:ratio=10000:-4     	 2000000	       717 ns/op
+BenchmarkListIntersect/:Mer:size=10:overlap=0.80:ratio=10000-4      	   30000	     49694 ns/op
+BenchmarkListIntersect/:Two:size=10:overlap=0.80:ratio=10000-4      	 2000000	       782 ns/op
+
+BenchmarkListIntersect/:Cur:size=10:overlap=0.80:ratio=100000:-4    	 2000000	       783 ns/op
+BenchmarkListIntersect/:Bin:size=10:overlap=0.80:ratio=100000:-4    	 2000000	       833 ns/op
+BenchmarkListIntersect/:Mer:size=10:overlap=0.80:ratio=100000-4     	    2000	    547879 ns/op
+BenchmarkListIntersect/:Two:size=10:overlap=0.80:ratio=100000-4     	 2000000	       744 ns/op
+
+BenchmarkListIntersect/:Cur:size=100:overlap=0.80:ratio=1:-4        	10000000	       228 ns/op
+BenchmarkListIntersect/:Bin:size=100:overlap=0.80:ratio=1:-4        	 1000000	      1989 ns/op
+BenchmarkListIntersect/:Mer:size=100:overlap=0.80:ratio=1-4         	10000000	       214 ns/op
+BenchmarkListIntersect/:Two:size=100:overlap=0.80:ratio=1-4         	 3000000	       402 ns/op
+
+BenchmarkListIntersect/:Cur:size=100:overlap=0.80:ratio=10:-4       	 2000000	       965 ns/op
+BenchmarkListIntersect/:Bin:size=100:overlap=0.80:ratio=10:-4       	  500000	      2850 ns/op
+BenchmarkListIntersect/:Mer:size=100:overlap=0.80:ratio=10-4        	 2000000	       906 ns/op
+BenchmarkListIntersect/:Two:size=100:overlap=0.80:ratio=10-4        	 1000000	      1257 ns/op
+
+BenchmarkListIntersect/:Cur:size=100:overlap=0.80:ratio=50:-4       	  300000	      3844 ns/op
+BenchmarkListIntersect/:Bin:size=100:overlap=0.80:ratio=50:-4       	  500000	      3526 ns/op
+BenchmarkListIntersect/:Mer:size=100:overlap=0.80:ratio=50-4        	  300000	      3778 ns/op
+BenchmarkListIntersect/:Two:size=100:overlap=0.80:ratio=50-4        	 1000000	      2264 ns/op
+
+BenchmarkListIntersect/:Cur:size=100:overlap=0.80:ratio=100:-4      	 1000000	      1946 ns/op
+BenchmarkListIntersect/:Bin:size=100:overlap=0.80:ratio=100:-4      	  300000	      3879 ns/op
+BenchmarkListIntersect/:Mer:size=100:overlap=0.80:ratio=100-4       	  200000	      6728 ns/op
+BenchmarkListIntersect/:Two:size=100:overlap=0.80:ratio=100-4       	  500000	      3026 ns/op
+
+BenchmarkListIntersect/:Cur:size=100:overlap=0.80:ratio=500:-4      	  200000	      6321 ns/op
+BenchmarkListIntersect/:Bin:size=100:overlap=0.80:ratio=500:-4      	  300000	      5111 ns/op
+BenchmarkListIntersect/:Mer:size=100:overlap=0.80:ratio=500-4       	   50000	     28952 ns/op
+BenchmarkListIntersect/:Two:size=100:overlap=0.80:ratio=500-4       	  200000	      7790 ns/op
+
+BenchmarkListIntersect/:Cur:size=100:overlap=0.80:ratio=1000:-4     	  100000	     10409 ns/op
+BenchmarkListIntersect/:Bin:size=100:overlap=0.80:ratio=1000:-4     	  200000	      6150 ns/op
+BenchmarkListIntersect/:Mer:size=100:overlap=0.80:ratio=1000-4      	   20000	     63071 ns/op
+BenchmarkListIntersect/:Two:size=100:overlap=0.80:ratio=1000-4      	  200000	     11175 ns/op
+
+BenchmarkListIntersect/:Cur:size=100:overlap=0.80:ratio=10000:-4    	  200000	     10975 ns/op
+BenchmarkListIntersect/:Bin:size=100:overlap=0.80:ratio=10000:-4    	  200000	      7132 ns/op
+BenchmarkListIntersect/:Mer:size=100:overlap=0.80:ratio=10000-4     	    2000	    660776 ns/op
+BenchmarkListIntersect/:Two:size=100:overlap=0.80:ratio=10000-4     	  100000	     12034 ns/op
+
+BenchmarkListIntersect/:Cur:size=1000:overlap=0.80:ratio=1:-4       	  500000	      2484 ns/op
+BenchmarkListIntersect/:Bin:size=1000:overlap=0.80:ratio=1:-4       	  100000	     20517 ns/op
+BenchmarkListIntersect/:Mer:size=1000:overlap=0.80:ratio=1-4        	 1000000	      2203 ns/op
+BenchmarkListIntersect/:Two:size=1000:overlap=0.80:ratio=1-4        	  300000	      4169 ns/op
+
+BenchmarkListIntersect/:Cur:size=1000:overlap=0.80:ratio=10:-4      	  100000	     14988 ns/op
+BenchmarkListIntersect/:Bin:size=1000:overlap=0.80:ratio=10:-4      	   30000	     49092 ns/op
+BenchmarkListIntersect/:Mer:size=1000:overlap=0.80:ratio=10-4       	  100000	     15233 ns/op
+BenchmarkListIntersect/:Two:size=1000:overlap=0.80:ratio=10-4       	  100000	     19258 ns/op
+
+BenchmarkListIntersect/:Cur:size=1000:overlap=0.80:ratio=50:-4      	   30000	     39668 ns/op
+BenchmarkListIntersect/:Bin:size=1000:overlap=0.80:ratio=50:-4      	   20000	     73833 ns/op
+BenchmarkListIntersect/:Mer:size=1000:overlap=0.80:ratio=50-4       	   30000	     40274 ns/op
+BenchmarkListIntersect/:Two:size=1000:overlap=0.80:ratio=50-4       	   50000	     32162 ns/op
+
+BenchmarkListIntersect/:Cur:size=1000:overlap=0.80:ratio=100:-4     	   50000	     38610 ns/op
+BenchmarkListIntersect/:Bin:size=1000:overlap=0.80:ratio=100:-4     	   20000	     89651 ns/op
+BenchmarkListIntersect/:Mer:size=1000:overlap=0.80:ratio=100-4      	   20000	     68202 ns/op
+BenchmarkListIntersect/:Two:size=1000:overlap=0.80:ratio=100-4      	   30000	     41083 ns/op
+
+BenchmarkListIntersect/:Cur:size=1000:overlap=0.80:ratio=500:-4     	   10000	    145173 ns/op
+BenchmarkListIntersect/:Bin:size=1000:overlap=0.80:ratio=500:-4     	   10000	    118953 ns/op
+BenchmarkListIntersect/:Mer:size=1000:overlap=0.80:ratio=500-4      	    5000	    329737 ns/op
+BenchmarkListIntersect/:Two:size=1000:overlap=0.80:ratio=500-4      	   10000	    160368 ns/op
+
+BenchmarkListIntersect/:Cur:size=1000:overlap=0.80:ratio=1000:-4    	   10000	    156363 ns/op
+BenchmarkListIntersect/:Bin:size=1000:overlap=0.80:ratio=1000:-4    	   10000	    129711 ns/op
+BenchmarkListIntersect/:Mer:size=1000:overlap=0.80:ratio=1000-4     	    2000	    659884 ns/op
+BenchmarkListIntersect/:Two:size=1000:overlap=0.80:ratio=1000-4     	   10000	    177643 ns/op
+
+BenchmarkListIntersect/:Cur:size=10000:overlap=0.80:ratio=1:-4      	   50000	     36090 ns/op
+BenchmarkListIntersect/:Bin:size=10000:overlap=0.80:ratio=1:-4      	    5000	    271653 ns/op
+BenchmarkListIntersect/:Mer:size=10000:overlap=0.80:ratio=1-4       	   50000	     30094 ns/op
+BenchmarkListIntersect/:Two:size=10000:overlap=0.80:ratio=1-4       	   20000	     73479 ns/op
+
+BenchmarkListIntersect/:Cur:size=10000:overlap=0.80:ratio=10:-4     	   10000	    175996 ns/op
+BenchmarkListIntersect/:Bin:size=10000:overlap=0.80:ratio=10:-4     	    2000	    630362 ns/op
+BenchmarkListIntersect/:Mer:size=10000:overlap=0.80:ratio=10-4      	   10000	    179215 ns/op
+BenchmarkListIntersect/:Two:size=10000:overlap=0.80:ratio=10-4      	    5000	    250692 ns/op
+
+BenchmarkListIntersect/:Cur:size=10000:overlap=0.80:ratio=50:-4     	    3000	    439170 ns/op
+BenchmarkListIntersect/:Bin:size=10000:overlap=0.80:ratio=50:-4     	    2000	   1074220 ns/op
+BenchmarkListIntersect/:Mer:size=10000:overlap=0.80:ratio=50-4      	    3000	    445695 ns/op
+BenchmarkListIntersect/:Two:size=10000:overlap=0.80:ratio=50-4      	    3000	    471031 ns/op
+
+BenchmarkListIntersect/:Cur:size=10000:overlap=0.80:ratio=100:-4    	    2000	    616940 ns/op
+BenchmarkListIntersect/:Bin:size=10000:overlap=0.80:ratio=100:-4    	    1000	   1364252 ns/op
+BenchmarkListIntersect/:Mer:size=10000:overlap=0.80:ratio=100-4     	    2000	    777366 ns/op
+BenchmarkListIntersect/:Two:size=10000:overlap=0.80:ratio=100-4     	    2000	    754220 ns/op
