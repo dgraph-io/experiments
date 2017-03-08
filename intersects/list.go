@@ -135,9 +135,11 @@ func BinIntersect(d, q []uint64, final *[]uint64) {
 	if ld == 0 || lq == 0 || d[ld-1] < q[0] || q[lq-1] < d[0] {
 		return
 	}
-	if ld < lq {
-		panic("what")
-	}
+	/*
+		if ld < lq {
+			panic("what")
+		}
+	*/
 
 	val := d[0]
 	minq := sort.Search(len(q), func(i int) bool {

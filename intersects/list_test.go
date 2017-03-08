@@ -12,6 +12,15 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestUIDListIntersect2(t *testing.T) {
+	u := []uint64{1, 2, 3}
+	v := []uint64{1, 2, 3, 4, 5}
+	res := make([]uint64, 0, 3)
+	BinIntersect(u, v, &res)
+	require.Equal(t, []uint64{1, 2, 3}, res)
+	require.Equal(t, []uint64{1, 2, 3, 4, 5}, v)
+}
+
 func intersect(a, b []uint64) []uint64 {
 	m := make(map[uint64]struct{})
 	for _, i := range a {
