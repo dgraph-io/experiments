@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dgraph-io/dgraph/task"
 	"github.com/stretchr/testify/require"
 )
 
@@ -197,6 +198,20 @@ func BenchmarkListIntersect(b *testing.B) {
 			u2 := createArray(sz2, limit)
 			d2 := encodeDelta(u2, 32)
 			result := make([]uint64, 0, sz)
+
+			u := &task.List{u1}
+			v := &task.List{u2}
+			ucopy := make([]uint64, len(u1), len(u1))
+			copy(ucopy, u1)
+
+			b.Run(fmt.Sprintf(":Cur:size=%d:overlap=%.2f:ratio=%d:", sz, overlap, r),
+				func(b *testing.B) {
+					for k := 0; k < b.N; k++ {
+						//u.Uids = u.Uids[:sz]
+						//copy(u.Uids, ucopy)
+						IntersectWith(u, v)
+					}
+				})
 
 			b.Run(fmt.Sprintf(":Bin:size=%d:overlap=%.2f:ratio=%d:", sz, overlap, r),
 				func(b *testing.B) {
