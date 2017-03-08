@@ -1,6 +1,9 @@
 package intersect
 
-import "sort"
+import (
+	"fmt"
+	"sort"
+)
 
 func mergeIntersect(a, b []uint64, final *[]uint64) {
 	ma, mb := len(a), len(b)
@@ -146,9 +149,12 @@ func BinIntersect(d, q []uint64, final *[]uint64) {
 
 	val = d[len(d)-1]
 	maxq := sort.Search(len(q), func(i int) bool {
-		return q[i] >= val
+		return q[i] > val
 	})
 
+	fmt.Println(d[0], d[len(d)-1])
+	fmt.Println(minq, maxq)
+	fmt.Println(d, q[minq:maxq])
 	binIntersect(d, q[minq:maxq], final)
 }
 
