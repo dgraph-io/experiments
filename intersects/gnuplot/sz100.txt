@@ -1,0 +1,125 @@
+BenchmarkListIntersect/ Cur size 100 overlap 0.00 ratio 1          	 3000000	       476 ns/op
+BenchmarkListIntersect/ Bin size 100 overlap 0.00 ratio 1          	 1000000	      2011 ns/op
+BenchmarkListIntersect/ Mer size 100 overlap 0.00 ratio 1          	 5000000	       353 ns/op
+BenchmarkListIntersect/ Two size 100 overlap 0.00 ratio 1          	 5000000	       344 ns/op
+
+BenchmarkListIntersect/ Cur size 100 overlap 0.00 ratio 10         	 1000000	      1373 ns/op
+BenchmarkListIntersect/ Bin size 100 overlap 0.00 ratio 10         	  300000	      3706 ns/op
+BenchmarkListIntersect/ Mer size 100 overlap 0.00 ratio 10         	 1000000	      1225 ns/op
+BenchmarkListIntersect/ Two size 100 overlap 0.00 ratio 10         	 1000000	      1595 ns/op
+
+BenchmarkListIntersect/ Cur size 100 overlap 0.00 ratio 50         	  300000	      4524 ns/op
+BenchmarkListIntersect/ Bin size 100 overlap 0.00 ratio 50         	  300000	      4426 ns/op
+BenchmarkListIntersect/ Mer size 100 overlap 0.00 ratio 50         	  300000	      4406 ns/op
+BenchmarkListIntersect/ Two size 100 overlap 0.00 ratio 50         	  500000	      3059 ns/op
+
+BenchmarkListIntersect/ Cur size 100 overlap 0.00 ratio 100        	  500000	      2746 ns/op
+BenchmarkListIntersect/ Bin size 100 overlap 0.00 ratio 100        	  300000	      4781 ns/op
+BenchmarkListIntersect/ Mer size 100 overlap 0.00 ratio 100        	  200000	      7443 ns/op
+BenchmarkListIntersect/ Two size 100 overlap 0.00 ratio 100        	  300000	      4859 ns/op
+
+BenchmarkListIntersect/ Cur size 100 overlap 0.00 ratio 500        	  100000	     12009 ns/op
+BenchmarkListIntersect/ Bin size 100 overlap 0.00 ratio 500        	  200000	      6051 ns/op
+BenchmarkListIntersect/ Mer size 100 overlap 0.00 ratio 500        	   50000	     30406 ns/op
+BenchmarkListIntersect/ Two size 100 overlap 0.00 ratio 500        	  200000	     10071 ns/op
+
+BenchmarkListIntersect/ Cur size 100 overlap 0.00 ratio 1000       	  100000	     14475 ns/op
+BenchmarkListIntersect/ Bin size 100 overlap 0.00 ratio 1000       	  200000	      7068 ns/op
+BenchmarkListIntersect/ Mer size 100 overlap 0.00 ratio 1000       	   30000	     59950 ns/op
+BenchmarkListIntersect/ Two size 100 overlap 0.00 ratio 1000       	  200000	     11530 ns/op
+
+BenchmarkListIntersect/ Cur size 100 overlap 0.00 ratio 10000      	  100000	     18895 ns/op
+BenchmarkListIntersect/ Bin size 100 overlap 0.00 ratio 10000      	  200000	     11007 ns/op
+BenchmarkListIntersect/ Mer size 100 overlap 0.00 ratio 10000      	    2000	    915484 ns/op
+BenchmarkListIntersect/ Two size 100 overlap 0.00 ratio 10000      	  100000	     16127 ns/op
+
+BenchmarkListIntersect/ Cur size 100 overlap 0.00 ratio 100000     	   50000	     25635 ns/op
+BenchmarkListIntersect/ Bin size 100 overlap 0.00 ratio 100000     	  100000	     15110 ns/op
+BenchmarkListIntersect/ Mer size 100 overlap 0.00 ratio 100000     	     200	   7819191 ns/op
+BenchmarkListIntersect/ Two size 100 overlap 0.00 ratio 100000     	  100000	     18710 ns/op
+
+BenchmarkListIntersect/ Cur size 1000 overlap 0.00 ratio 1         	  300000	      5007 ns/op
+BenchmarkListIntersect/ Bin size 1000 overlap 0.00 ratio 1         	   50000	     28835 ns/op
+BenchmarkListIntersect/ Mer size 1000 overlap 0.00 ratio 1         	  500000	      3346 ns/op
+BenchmarkListIntersect/ Two size 1000 overlap 0.00 ratio 1         	  300000	      3591 ns/op
+
+BenchmarkListIntersect/ Cur size 1000 overlap 0.00 ratio 10        	  100000	     19222 ns/op
+BenchmarkListIntersect/ Bin size 1000 overlap 0.00 ratio 10        	   20000	     64091 ns/op
+BenchmarkListIntersect/ Mer size 1000 overlap 0.00 ratio 10        	  100000	     18252 ns/op
+BenchmarkListIntersect/ Two size 1000 overlap 0.00 ratio 10        	  100000	     20959 ns/op
+
+BenchmarkListIntersect/ Cur size 1000 overlap 0.00 ratio 50        	   30000	     45496 ns/op
+BenchmarkListIntersect/ Bin size 1000 overlap 0.00 ratio 50        	   20000	    101820 ns/op
+BenchmarkListIntersect/ Mer size 1000 overlap 0.00 ratio 50        	   30000	     46817 ns/op
+BenchmarkListIntersect/ Two size 1000 overlap 0.00 ratio 50        	   30000	     43222 ns/op
+
+BenchmarkListIntersect/ Cur size 1000 overlap 0.00 ratio 100       	   30000	     52070 ns/op
+BenchmarkListIntersect/ Bin size 1000 overlap 0.00 ratio 100       	   10000	    113958 ns/op
+BenchmarkListIntersect/ Mer size 1000 overlap 0.00 ratio 100       	   20000	     76589 ns/op
+BenchmarkListIntersect/ Two size 1000 overlap 0.00 ratio 100       	   30000	     53603 ns/op
+
+BenchmarkListIntersect/ Cur size 1000 overlap 0.00 ratio 500       	   10000	    253771 ns/op
+BenchmarkListIntersect/ Bin size 1000 overlap 0.00 ratio 500       	   10000	    172471 ns/op
+BenchmarkListIntersect/ Mer size 1000 overlap 0.00 ratio 500       	    5000	    400153 ns/op
+BenchmarkListIntersect/ Two size 1000 overlap 0.00 ratio 500       	   10000	    209355 ns/op
+
+BenchmarkListIntersect/ Cur size 1000 overlap 0.00 ratio 1000      	    5000	    287709 ns/op
+BenchmarkListIntersect/ Bin size 1000 overlap 0.00 ratio 1000      	    5000	    245613 ns/op
+BenchmarkListIntersect/ Mer size 1000 overlap 0.00 ratio 1000      	    2000	   1010848 ns/op
+BenchmarkListIntersect/ Two size 1000 overlap 0.00 ratio 1000      	    5000	    266988 ns/op
+
+BenchmarkListIntersect/ Cur size 1000 overlap 0.00 ratio 10000     	    5000	    359376 ns/op
+BenchmarkListIntersect/ Bin size 1000 overlap 0.00 ratio 10000     	    3000	    438286 ns/op
+BenchmarkListIntersect/ Mer size 1000 overlap 0.00 ratio 10000     	     200	   8676965 ns/op
+BenchmarkListIntersect/ Two size 1000 overlap 0.00 ratio 10000     	    5000	    261349 ns/op
+
+BenchmarkListIntersect/ Cur size 10000 overlap 0.00 ratio 1        	   10000	    125745 ns/op
+BenchmarkListIntersect/ Bin size 10000 overlap 0.00 ratio 1        	    3000	    402996 ns/op
+BenchmarkListIntersect/ Mer size 10000 overlap 0.00 ratio 1        	   10000	    112426 ns/op
+BenchmarkListIntersect/ Two size 10000 overlap 0.00 ratio 1        	   10000	    132861 ns/op
+
+BenchmarkListIntersect/ Cur size 10000 overlap 0.00 ratio 10       	    5000	    236750 ns/op
+BenchmarkListIntersect/ Bin size 10000 overlap 0.00 ratio 10       	    2000	    843713 ns/op
+BenchmarkListIntersect/ Mer size 10000 overlap 0.00 ratio 10       	   10000	    221997 ns/op
+BenchmarkListIntersect/ Two size 10000 overlap 0.00 ratio 10       	    5000	    280024 ns/op
+
+BenchmarkListIntersect/ Cur size 10000 overlap 0.00 ratio 50       	    3000	    528143 ns/op
+BenchmarkListIntersect/ Bin size 10000 overlap 0.00 ratio 50       	    1000	   1283781 ns/op
+BenchmarkListIntersect/ Mer size 10000 overlap 0.00 ratio 50       	    3000	    499080 ns/op
+BenchmarkListIntersect/ Two size 10000 overlap 0.00 ratio 50       	    3000	    585025 ns/op
+
+BenchmarkListIntersect/ Cur size 10000 overlap 0.00 ratio 100      	    2000	    788320 ns/op
+BenchmarkListIntersect/ Bin size 10000 overlap 0.00 ratio 100      	    1000	   1856169 ns/op
+BenchmarkListIntersect/ Mer size 10000 overlap 0.00 ratio 100      	    2000	    848994 ns/op
+BenchmarkListIntersect/ Two size 10000 overlap 0.00 ratio 100      	    2000	    773841 ns/op
+
+BenchmarkListIntersect/ Cur size 10000 overlap 0.00 ratio 500      	     500	   3776205 ns/op
+BenchmarkListIntersect/ Bin size 10000 overlap 0.00 ratio 500      	     500	   4064089 ns/op
+BenchmarkListIntersect/ Mer size 10000 overlap 0.00 ratio 500      	     300	   4734256 ns/op
+BenchmarkListIntersect/ Two size 10000 overlap 0.00 ratio 500      	     500	   2671240 ns/op
+
+BenchmarkListIntersect/ Cur size 10000 overlap 0.00 ratio 1000     	     300	   4343108 ns/op
+BenchmarkListIntersect/ Bin size 10000 overlap 0.00 ratio 1000     	     300	   4335445 ns/op
+BenchmarkListIntersect/ Mer size 10000 overlap 0.00 ratio 1000     	     200	   7766084 ns/op
+BenchmarkListIntersect/ Two size 10000 overlap 0.00 ratio 1000     	     500	   3127777 ns/op
+
+BenchmarkListIntersect/ Cur size 100000 overlap 0.00 ratio 1       	    1000	   1307454 ns/op
+BenchmarkListIntersect/ Bin size 100000 overlap 0.00 ratio 1       	     300	   4130650 ns/op
+BenchmarkListIntersect/ Mer size 100000 overlap 0.00 ratio 1       	    1000	   1200516 ns/op
+BenchmarkListIntersect/ Two size 100000 overlap 0.00 ratio 1       	    1000	   1320702 ns/op
+
+BenchmarkListIntersect/ Cur size 100000 overlap 0.00 ratio 10      	    2000	   1106473 ns/op
+BenchmarkListIntersect/ Bin size 100000 overlap 0.00 ratio 10      	     200	   9308957 ns/op
+BenchmarkListIntersect/ Mer size 100000 overlap 0.00 ratio 10      	    2000	   1087623 ns/op
+BenchmarkListIntersect/ Two size 100000 overlap 0.00 ratio 10      	     500	   2960338 ns/op
+
+BenchmarkListIntersect/ Cur size 100000 overlap 0.00 ratio 50      	     300	   4493197 ns/op
+BenchmarkListIntersect/ Bin size 100000 overlap 0.00 ratio 50      	     100	  15564096 ns/op
+BenchmarkListIntersect/ Mer size 100000 overlap 0.00 ratio 50      	     300	   4233171 ns/op
+BenchmarkListIntersect/ Two size 100000 overlap 0.00 ratio 50      	     200	   6049663 ns/op
+
+BenchmarkListIntersect/ Cur size 100000 overlap 0.00 ratio 100     	     200	  11902295 ns/op
+BenchmarkListIntersect/ Bin size 100000 overlap 0.00 ratio 100     	     100	  21413719 ns/op
+BenchmarkListIntersect/ Mer size 100000 overlap 0.00 ratio 100     	     200	   9407519 ns/op
+BenchmarkListIntersect/ Two size 100000 overlap 0.00 ratio 100     	     100	  10227065 ns/op
+

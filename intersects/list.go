@@ -212,6 +212,11 @@ func encodeDelta(d []uint64, bucketSize int) *DeltaList {
 
 func encodeFixed(d []uint64) *FixedList {
 	f := new(FixedList)
-	f.Uids = d
+	if len(d) == 0 {
+		return f
+	}
+	for _, cur := range d {
+		f.Uids = append(f.Uids, cur)
+	}
 	return f
 }

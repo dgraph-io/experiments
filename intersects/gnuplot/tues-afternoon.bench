@@ -1,0 +1,169 @@
+Cur size 100 overlap 0.00 ratio 1          	 3000000	       502 ns/op
+Bin size 100 overlap 0.00 ratio 1          	  500000	      2177 ns/op
+Two size 100 overlap 0.00 ratio 1          	 3000000	       346 ns/op
+
+Cur size 100 overlap 0.00 ratio 10         	 1000000	      1295 ns/op
+Bin size 100 overlap 0.00 ratio 10         	  500000	      3619 ns/op
+Two size 100 overlap 0.00 ratio 10         	 1000000	      1558 ns/op
+
+Cur size 100 overlap 0.00 ratio 50         	  300000	      4562 ns/op
+Bin size 100 overlap 0.00 ratio 50         	  300000	      4496 ns/op
+Two size 100 overlap 0.00 ratio 50         	  500000	      2834 ns/op
+
+Cur size 100 overlap 0.00 ratio 100        	  500000	      2848 ns/op
+Bin size 100 overlap 0.00 ratio 100        	  300000	      4744 ns/op
+Two size 100 overlap 0.00 ratio 100        	  500000	      3416 ns/op
+
+Cur size 100 overlap 0.00 ratio 500        	  200000	     10714 ns/op
+Bin size 100 overlap 0.00 ratio 500        	  200000	      6148 ns/op
+Two size 100 overlap 0.00 ratio 500        	  200000	      9600 ns/op
+
+Cur size 100 overlap 0.00 ratio 1000       	  100000	     13110 ns/op
+Bin size 100 overlap 0.00 ratio 1000       	  200000	      7642 ns/op
+Two size 100 overlap 0.00 ratio 1000       	  100000	     14306 ns/op
+
+Cur size 100 overlap 0.00 ratio 10000      	  100000	     17724 ns/op
+Bin size 100 overlap 0.00 ratio 10000      	  200000	     11102 ns/op
+Two size 100 overlap 0.00 ratio 10000      	  100000	     14599 ns/op
+
+Cur size 100 overlap 0.00 ratio 100000     	   50000	     22210 ns/op
+Bin size 100 overlap 0.00 ratio 100000     	  100000	     15632 ns/op
+Two size 100 overlap 0.00 ratio 100000     	  100000	     18938 ns/op
+
+Cur size 1000 overlap 0.00 ratio 1         	  300000	      5218 ns/op
+Bin size 1000 overlap 0.00 ratio 1         	   50000	     26022 ns/op
+Two size 1000 overlap 0.00 ratio 1         	  500000	      3664 ns/op
+
+Cur size 1000 overlap 0.00 ratio 10        	  100000	     20874 ns/op
+Bin size 1000 overlap 0.00 ratio 10        	   20000	     68601 ns/op
+Two size 1000 overlap 0.00 ratio 10        	  100000	     21383 ns/op
+
+Cur size 1000 overlap 0.00 ratio 50        	   30000	     46390 ns/op
+Bin size 1000 overlap 0.00 ratio 50        	   20000	     97607 ns/op
+Two size 1000 overlap 0.00 ratio 50        	   30000	     42757 ns/op
+
+Cur size 1000 overlap 0.00 ratio 100       	   30000	     53533 ns/op
+Bin size 1000 overlap 0.00 ratio 100       	   10000	    116420 ns/op
+Two size 1000 overlap 0.00 ratio 100       	   30000	     52907 ns/op
+
+Cur size 1000 overlap 0.00 ratio 500       	   10000	    220420 ns/op
+Bin size 1000 overlap 0.00 ratio 500       	   10000	    170243 ns/op
+Two size 1000 overlap 0.00 ratio 500       	   10000	    177488 ns/op
+
+Cur size 1000 overlap 0.00 ratio 1000      	    5000	    246376 ns/op
+Bin size 1000 overlap 0.00 ratio 1000      	   10000	    201288 ns/op
+Two size 1000 overlap 0.00 ratio 1000      	   10000	    194318 ns/op
+
+Cur size 1000 overlap 0.00 ratio 10000     	    5000	    400010 ns/op
+Bin size 1000 overlap 0.00 ratio 10000     	    3000	    497427 ns/op
+Two size 1000 overlap 0.00 ratio 10000     	    5000	    298290 ns/op
+
+Cur size 10000 overlap 0.00 ratio 1        	   10000	    127870 ns/op
+Bin size 10000 overlap 0.00 ratio 1        	    3000	    439242 ns/op
+Two size 10000 overlap 0.00 ratio 1        	   10000	    142286 ns/op
+
+Cur size 10000 overlap 0.00 ratio 10       	   10000	    232583 ns/op
+Bin size 10000 overlap 0.00 ratio 10       	    2000	    921371 ns/op
+Two size 10000 overlap 0.00 ratio 10       	    5000	    284922 ns/op
+
+Cur size 10000 overlap 0.00 ratio 50       	    3000	    562843 ns/op
+Bin size 10000 overlap 0.00 ratio 50       	    1000	   1491498 ns/op
+Two size 10000 overlap 0.00 ratio 50       	    2000	    691488 ns/op
+
+Cur size 10000 overlap 0.00 ratio 100      	    2000	    865578 ns/op
+Bin size 10000 overlap 0.00 ratio 100      	    1000	   1790656 ns/op
+Two size 10000 overlap 0.00 ratio 100      	    2000	    769356 ns/op
+
+Cur size 10000 overlap 0.00 ratio 500      	     500	   3612158 ns/op
+Bin size 10000 overlap 0.00 ratio 500      	     500	   3474005 ns/op
+Two size 10000 overlap 0.00 ratio 500      	     500	   2625058 ns/op
+
+Cur size 10000 overlap 0.00 ratio 1000     	     300	   4604797 ns/op
+Bin size 10000 overlap 0.00 ratio 1000     	     300	   4669962 ns/op
+Two size 10000 overlap 0.00 ratio 1000     	     500	   3001428 ns/op
+
+
+Cur size 100 overlap 0.80 ratio 1          	 5000000	       249 ns/op
+Bin size 100 overlap 0.80 ratio 1          	 1000000	      2057 ns/op
+Two size 100 overlap 0.80 ratio 1          	 5000000	       294 ns/op
+
+Cur size 100 overlap 0.80 ratio 10         	 1000000	      1048 ns/op
+Bin size 100 overlap 0.80 ratio 10         	  500000	      3104 ns/op
+Two size 100 overlap 0.80 ratio 10         	 1000000	      1416 ns/op
+
+Cur size 100 overlap 0.80 ratio 50         	  500000	      3864 ns/op
+Bin size 100 overlap 0.80 ratio 50         	  300000	      3670 ns/op
+Two size 100 overlap 0.80 ratio 50         	  500000	      2967 ns/op
+
+Cur size 100 overlap 0.80 ratio 100        	 1000000	      1917 ns/op
+Bin size 100 overlap 0.80 ratio 100        	  300000	      4018 ns/op
+Two size 100 overlap 0.80 ratio 100        	  300000	      4701 ns/op
+
+Cur size 100 overlap 0.80 ratio 500        	  200000	      7240 ns/op
+Bin size 100 overlap 0.80 ratio 500        	  300000	      5191 ns/op
+Two size 100 overlap 0.80 ratio 500        	  200000	      9850 ns/op
+
+Cur size 100 overlap 0.80 ratio 1000       	  200000	      8352 ns/op
+Bin size 100 overlap 0.80 ratio 1000       	  200000	      5955 ns/op
+Two size 100 overlap 0.80 ratio 1000       	  200000	     10711 ns/op
+
+Cur size 100 overlap 0.80 ratio 10000      	  100000	     14017 ns/op
+Bin size 100 overlap 0.80 ratio 10000      	  200000	      9627 ns/op
+Two size 100 overlap 0.80 ratio 10000      	  100000	     14331 ns/op
+
+Cur size 100 overlap 0.80 ratio 100000     	  100000	     17740 ns/op
+Bin size 100 overlap 0.80 ratio 100000     	  100000	     12621 ns/op
+Two size 100 overlap 0.80 ratio 100000     	  100000	     18746 ns/op
+
+Cur size 1000 overlap 0.80 ratio 1         	  500000	      2862 ns/op
+Bin size 1000 overlap 0.80 ratio 1         	  100000	     21128 ns/op
+Two size 1000 overlap 0.80 ratio 1         	  500000	      3057 ns/op
+
+Cur size 1000 overlap 0.80 ratio 10        	  100000	     15553 ns/op
+Bin size 1000 overlap 0.80 ratio 10        	   30000	     50781 ns/op
+Two size 1000 overlap 0.80 ratio 10        	  100000	     21584 ns/op
+
+Cur size 1000 overlap 0.80 ratio 50        	   30000	     42520 ns/op
+Bin size 1000 overlap 0.80 ratio 50        	   20000	     81000 ns/op
+Two size 1000 overlap 0.80 ratio 50        	   30000	     44956 ns/op
+
+Cur size 1000 overlap 0.80 ratio 100       	   30000	     44530 ns/op
+Bin size 1000 overlap 0.80 ratio 100       	   10000	    139756 ns/op
+Two size 1000 overlap 0.80 ratio 100       	   20000	     56865 ns/op
+
+Cur size 1000 overlap 0.80 ratio 500       	   10000	    189259 ns/op
+Bin size 1000 overlap 0.80 ratio 500       	   10000	    168377 ns/op
+Two size 1000 overlap 0.80 ratio 500       	   10000	    204097 ns/op
+
+Cur size 1000 overlap 0.80 ratio 1000      	   10000	    261181 ns/op
+Bin size 1000 overlap 0.80 ratio 1000      	   10000	    198255 ns/op
+Two size 1000 overlap 0.80 ratio 1000      	   10000	    219306 ns/op
+
+Cur size 1000 overlap 0.80 ratio 10000     	    2000	    525353 ns/op
+Bin size 1000 overlap 0.80 ratio 10000     	    2000	    563448 ns/op
+Two size 1000 overlap 0.80 ratio 10000     	    3000	    377139 ns/op
+
+Cur size 10000 overlap 0.80 ratio 1        	   50000	     41263 ns/op
+Bin size 10000 overlap 0.80 ratio 1        	    5000	    317512 ns/op
+Two size 10000 overlap 0.80 ratio 1        	   20000	     70605 ns/op
+
+Cur size 10000 overlap 0.80 ratio 10       	   10000	    188755 ns/op
+Bin size 10000 overlap 0.80 ratio 10       	    2000	    673818 ns/op
+Two size 10000 overlap 0.80 ratio 10       	    5000	    306465 ns/op
+
+Cur size 10000 overlap 0.80 ratio 50       	    3000	    484723 ns/op
+Bin size 10000 overlap 0.80 ratio 50       	    1000	   1234523 ns/op
+Two size 10000 overlap 0.80 ratio 50       	    3000	    620454 ns/op
+
+Cur size 10000 overlap 0.80 ratio 100      	    2000	    867529 ns/op
+Bin size 10000 overlap 0.80 ratio 100      	    1000	   1589341 ns/op
+Two size 10000 overlap 0.80 ratio 100      	    2000	    825185 ns/op
+
+Cur size 10000 overlap 0.80 ratio 500      	     300	   4590360 ns/op
+Bin size 10000 overlap 0.80 ratio 500      	     500	   3265703 ns/op
+Two size 10000 overlap 0.80 ratio 500      	     500	   2901345 ns/op
+
+Cur size 10000 overlap 0.80 ratio 1000     	     300	   5043228 ns/op
+Bin size 10000 overlap 0.80 ratio 1000     	     500	   3627748 ns/op
+Two size 10000 overlap 0.80 ratio 1000     	     500	   3006012 ns/op
+
