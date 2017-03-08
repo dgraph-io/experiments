@@ -19,11 +19,10 @@ func mergeIntersect(a, b []uint64, final *[]uint64) {
 			for j = j + 1; j < mb && a[i] > b[j]; j++ {
 			}
 		}
-
 	}
 }
 
-func mergeDeltaIntersect(a, b *DeltaList, final *[]uint64) {
+func twoLevelLinear(a, b *DeltaList, final *[]uint64) {
 	if len(a.Uids) > len(b.Uids) {
 		panic("this is wrong")
 	}
@@ -33,60 +32,49 @@ func mergeDeltaIntersect(a, b *DeltaList, final *[]uint64) {
 
 	var ea uint64
 	bsize := int(b.BucketSize)
-	var bidx int
 	var eb uint64 = b.Uids[0]
 
 	bucketIdx := 0
 	numb := len(b.Buckets)
-	numbu := len(b.Uids)
 	end := bsize
 	endBucket := b.Buckets[0]
+	var ai, bi int
 
-OUTER:
-	for _, da := range a.Uids {
-		ea += da
+	for ai < len(a.Uids) && bi < len(b.Uids) {
+		ea = a.Uids[ai]
 
 		// find the bucket
 		for ; endBucket < ea && bucketIdx < numb; bucketIdx++ {
-			bidx = bsize * bucketIdx
+			bi = bsize * bucketIdx
 			endBucket = b.Buckets[bucketIdx]
 
-			if bucketIdx > 0 {
-				eb = b.Buckets[bucketIdx-1] + b.Uids[bidx]
-			} else {
-				eb = b.Uids[bidx]
-			}
-
 			end = bsize * (bucketIdx + 1)
-			if end > numbu {
-				end = numbu
+			if bucketIdx == numb-1 {
+				end = len(b.Uids)
 			}
 		}
 		if ea > endBucket {
 			break
 		}
 
-		// Got the right bucket.
-		for {
-			if eb >= ea {
-				if eb == ea {
-					*final = append(*final, ea)
-				}
-				break
+		// Iterate within the bucket.
+		for ea <= endBucket && ai < len(a.Uids) && bi < end {
+			ea = a.Uids[ai]
+			eb = b.Uids[bi]
+			if eb < ea {
+				bi++
+			} else if eb > ea {
+				ai++
+			} else {
+				*final = append(*final, ea)
+				ai++
+				bi++
 			}
-			bidx++
-			if bidx >= end {
-				break
-			}
-			eb += b.Uids[bidx]
-		}
-		if bidx == numbu {
-			break OUTER
 		}
 	}
 }
 
-func BinDelta(a, b *DeltaList, final *[]uint64) {
+func twoLevelBinary(a, b *DeltaList, final *[]uint64) {
 	if len(a.Uids) > len(b.Uids) {
 		panic("this is wrong")
 	}
@@ -96,44 +84,47 @@ func BinDelta(a, b *DeltaList, final *[]uint64) {
 
 	var ea, eb uint64
 	eb = b.Uids[0]
-	var bidx int
+	var bucketIdx int
 	bsize := int(b.BucketSize)
-	bb := b.Buckets
-	var bi int
+	var ai, bi int
 	end := len(b.Uids)
+	numb := len(b.Buckets)
+	endBucket := b.Buckets[0]
 
-	for _, da := range a.Uids {
-		ea += da
-		if ea > bb[bidx] {
-			bidx = sort.Search(len(bb), func(i int) bool {
-				return bb[i] >= ea
+	for ai < len(a.Uids) {
+		ea = a.Uids[ai]
+
+		if ea > endBucket {
+			bucketIdx = sort.Search(numb, func(i int) bool {
+				return b.Buckets[i] >= ea
 			})
-			if bidx == len(bb) {
+			if bucketIdx == numb {
 				return
 			}
-			bi = bsize * bidx
-			if bidx > 0 {
-				eb = b.Buckets[bidx-1] + b.Uids[bi]
-			}
-			end = bsize * (bidx + 1)
-			if end > len(b.Uids) {
+			endBucket = b.Buckets[bucketIdx]
+			bi = bsize * bucketIdx
+			end = bsize * (bucketIdx + 1)
+			if bucketIdx == numb-1 {
 				end = len(b.Uids)
 			}
 		}
+		if ea > endBucket {
+			break
+		}
 
 		// LINEAR search here.
-		for {
-			if eb >= ea {
-				if eb == ea {
-					*final = append(*final, ea)
-				}
-				break
+		for ea <= endBucket && ai < len(a.Uids) && bi < end {
+			ea = a.Uids[ai]
+			eb = b.Uids[bi]
+			if eb < ea {
+				bi++
+			} else if eb > ea {
+				ai++
+			} else {
+				*final = append(*final, ea)
+				ai++
+				bi++
 			}
-			bi++
-			if bi >= end {
-				break
-			}
-			eb += b.Uids[bi]
 		}
 	}
 }
@@ -209,7 +200,7 @@ func encodeDelta(d []uint64, bucketSize int) *DeltaList {
 		if i%bucketSize == bucketSize-1 { // Store the max of the bucket.
 			l.Buckets = append(l.Buckets, cur)
 		}
-		l.Uids = append(l.Uids, cur-last)
+		l.Uids = append(l.Uids, cur)
 		last = cur
 	}
 	if len(l.Buckets) == 0 || l.Buckets[len(l.Buckets)-1] != last {

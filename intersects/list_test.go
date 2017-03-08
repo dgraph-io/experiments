@@ -88,7 +88,7 @@ func TestTwoLevelIntersect(t *testing.T) {
 
 	fmt.Printf("a=%v\nb=%v\n", a, b)
 	final := make([]uint64, 0, 100)
-	mergeDeltaIntersect(da, db, &final)
+	twoLevelLinear(da, db, &final)
 
 	exp := make([]uint64, 0, 100)
 	mergeIntersect(a, b, &exp)
@@ -96,7 +96,7 @@ func TestTwoLevelIntersect(t *testing.T) {
 	require.Equal(t, exp, final)
 
 	final = final[:0]
-	BinDelta(da, db, &final)
+	twoLevelBinary(da, db, &final)
 	require.Equal(t, exp, final)
 }
 
@@ -232,9 +232,9 @@ func BenchmarkListIntersect(b *testing.B) {
 				func(b *testing.B) {
 					var f func(a, b *DeltaList, final *[]uint64)
 					if r < 500 {
-						f = mergeDeltaIntersect
+						f = twoLevelLinear
 					} else {
-						f = BinDelta
+						f = twoLevelBinary
 					}
 					for k := 0; k < b.N; k++ {
 						f(d1, d2, &result)
